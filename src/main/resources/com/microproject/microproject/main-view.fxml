@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.microproject.microproject.MainController">
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="File">
+                    <items>
+                        <MenuItem text="Load Instructions" onAction="#handleLoadInstructions"/>
+                        <MenuItem text="Exit" onAction="#handleExit"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <children>
+                <TableView fx:id="instructionQueueTable" prefWidth="200" prefHeight="100"/>
+                <TableView fx:id="reservationStationsTable" prefWidth="200" prefHeight="100"/>
+                <TableView fx:id="registerFileTable" prefWidth="200" prefHeight="100"/>
+                <TableView fx:id="cacheTable" prefWidth="200" prefHeight="100"/>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
