@@ -1,20 +1,22 @@
 // Java
 package com.microproject.microproject.model;
 
-public class Register {
+public class RegisterF {
     private String name;
+    private String Qi;
     private double value;
-    private String reservationStation;
+
 
     // Default constructor
-    public Register() {
+    public RegisterF() {
     }
 
     // Parameterized constructor
-    public Register(String name, double value) {
+    public RegisterF(String name, double value, String Qi) {
         this.name = name;
         this.value = value;
-        this.reservationStation = "";
+        this.Qi = Qi;
+
     }
 
     // Getters and setters
