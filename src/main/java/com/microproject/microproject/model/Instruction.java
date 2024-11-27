@@ -2,6 +2,7 @@ package com.microproject.microproject.model;
 
 public class Instruction {
     private String opcode;
+    private int latency;
     private String destination;
     private String source1;
     private String source2;
@@ -11,13 +12,21 @@ public class Instruction {
     }
 
     // Parameterized constructor
-    public Instruction(String opcode, String destination, String source1, String source2) {
+    public Instruction(String opcode, int latency, String destination, String source1, String source2) {
         this.opcode = opcode;
+        this.latency = latency;
         this.destination = destination;
         this.source1 = source1;
         this.source2 = source2;
     }
 
+    public int getLatency() {
+        return latency;
+    }
+
+    public void setLatency(int latency) {
+        this.latency = latency;
+    }
     // Getters and setters
     public String getOpcode() {
         return opcode;
