@@ -3,9 +3,10 @@ package com.microproject.microproject.model;
 
 public class CacheBlock {
     private int address;
-    private double[] data;
+    private Register[] data;
     private boolean valid;
     private boolean dirty;
+    private int blockSize;
 
     // Default constructor
     public CacheBlock() {
@@ -14,7 +15,7 @@ public class CacheBlock {
     // Parameterized constructor
     public CacheBlock(int address, int blockSize) {
         this.address = address;
-        this.data = new double[blockSize];
+        this.data = new Register[blockSize];
         this.valid = true;
         this.dirty = false;
     }
@@ -28,11 +29,11 @@ public class CacheBlock {
         this.address = address;
     }
 
-    public double[] getData() {
+    public Register[] getData() {
         return data;
     }
 
-    public void setData(double[] data) {
+    public void setData(Register[] data) {
         this.data = data;
     }
 
