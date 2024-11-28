@@ -13,17 +13,20 @@ public class InstructionSuperReader {
         List<String[]> latenciesData = InstructionReader.readInstructions(latenciesFilePath);
 
         List<Instruction> instructions = new ArrayList<>();
-        int minSize = Math.min(instructionsData.size(), latenciesData.size());
-        for (int i = 0; i < minSize; i++) {
-            String[] instructionData = instructionsData.get(i);
-            String[] latencyData = latenciesData.get(i);
-
-            if (instructionData.length > 0 && latencyData.length > 1) {
+        for (String[] instructionData : instructionsData) {
+            if (instructionData.length > 0) {
                 String opcode = instructionData[0];
-                int latency = Integer.parseInt(latencyData[1]);
                 String destination = instructionData.length > 1 ? instructionData[1] : null;
                 String source1 = instructionData.length > 2 ? instructionData[2] : null;
                 String source2 = instructionData.length > 3 ? instructionData[3] : null;
+
+                int latency = 1; // Default latency
+                for (String[] latencyData : latenciesData) {
+                    if (latencyData.length > 1 && latencyData[0].equals(opcode)) {
+                        latency = Integer.parseInt(latencyData[1]);
+                        break;
+                    }
+                }
 
                 Instruction instruction = new Instruction(opcode, latency, destination, source1, source2);
                 instructions.add(instruction);
