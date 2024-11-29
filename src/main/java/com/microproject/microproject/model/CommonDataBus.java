@@ -1,8 +1,8 @@
-// Java
 package com.microproject.microproject.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CommonDataBus {
     private List<CDBEntry> entries;
@@ -15,11 +15,20 @@ public class CommonDataBus {
         entries.add(new CDBEntry(destination, result));
     }
 
-    public void broadcast() {
+    public void broadcast(List<ReservationStation> reservationStations, RegisterFile registerFile, Map<String, String> registerStatus) {
         for (CDBEntry entry : entries) {
-            // Update registers and waiting reservation stations
+            // Update register file
+            registerFile.setRegisterValue(entry.getDestination(), entry.getResult());
+
+            // Clear register status
+            registerStatus.remove(entry.getDestination());
+
+            // Update waiting reservation stations
+            for (ReservationStation rs : reservationStations) {
+                rs.updateEntries(entry);
+            }
+
             System.out.println("Broadcasting result for " + entry.getDestination());
-            // Implement the logic to update registers and reservation stations
         }
         entries.clear();
     }

@@ -22,7 +22,7 @@ public class Main {
 
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
-        latencies.put("L.D", 2);    // Example latency
+        latencies.put("L.D", 2);
         latencies.put("MUL.D", 10);
         latencies.put("S.D", 2);
 
@@ -32,7 +32,7 @@ public class Main {
         ReservationStation loadRS = new ReservationStation(2, "Load");
         ReservationStation storeRS = new ReservationStation(2, "Store");
 
-        // Create a list to hold all reservation stations
+        // List of reservation stations
         List<ReservationStation> reservationStations = Arrays.asList(
                 addSubRS, mulDivRS, loadRS, storeRS
         );
@@ -40,32 +40,35 @@ public class Main {
         // Initialize Common Data Bus
         CommonDataBus cdb = new CommonDataBus();
 
+        // Register status table
+        Map<String, String> registerStatus = new HashMap<>();
+
         // Simulation variables
         int cycle = 1;
-        int pc = 0;  // Program counter for instructions
+        int pc = 0;  // Program counter
 
         // Main simulation loop
         while (true) {
             System.out.println("Cycle: " + cycle);
 
-            // Write-back stage
-            cdb.broadcast();
+            // Issue stage
+            if (pc < instructions.size()) {
+                Instruction inst = instructions.get(pc);
+                boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
+                if (issued) {
+                    pc++;
+                }
+            }
 
             // Execute stage
             for (ReservationStation rs : reservationStations) {
                 rs.execute(cdb);
             }
 
-            // Issue stage
-            if (pc < instructions.size()) {
-                Instruction inst = instructions.get(pc);
-                boolean issued = issueInstruction(inst, reservationStations, registerFile, latencies);
-                if (issued) {
-                    pc++;
-                }
-            }
+            // Write-back stage
+            cdb.broadcast(reservationStations, registerFile, registerStatus);
 
-            // Check if all instructions have been processed
+            // Check for completion
             boolean done = (pc >= instructions.size());
             for (ReservationStation rs : reservationStations) {
                 if (!rs.isEmpty()) {
@@ -84,32 +87,25 @@ public class Main {
     }
 
     private static boolean issueInstruction(Instruction inst, List<ReservationStation> reservationStations,
-                                            RegisterFile registerFile, Map<String, Integer> latencies) {
+                                            RegisterFile registerFile, Map<String, String> registerStatus,
+                                            Map<String, Integer> latencies) {
         String opcode = inst.getOpcode();
         ReservationStation rs = null;
 
         switch (opcode) {
             case "ADD.D":
             case "SUB.D":
-                rs = reservationStations.stream()
-                        .filter(r -> r.getName().equals("Add/Sub"))
-                        .findFirst().orElse(null);
+                rs = getReservationStationByName(reservationStations, "Add/Sub");
                 break;
             case "MUL.D":
             case "DIV.D":
-                rs = reservationStations.stream()
-                        .filter(r -> r.getName().equals("Mul/Div"))
-                        .findFirst().orElse(null);
+                rs = getReservationStationByName(reservationStations, "Mul/Div");
                 break;
             case "L.D":
-                rs = reservationStations.stream()
-                        .filter(r -> r.getName().equals("Load"))
-                        .findFirst().orElse(null);
+                rs = getReservationStationByName(reservationStations, "Load");
                 break;
             case "S.D":
-                rs = reservationStations.stream()
-                        .filter(r -> r.getName().equals("Store"))
-                        .findFirst().orElse(null);
+                rs = getReservationStationByName(reservationStations, "Store");
                 break;
             default:
                 System.out.println("Unsupported opcode: " + opcode);
@@ -117,10 +113,20 @@ public class Main {
         }
 
         if (rs != null && !rs.isFull()) {
-            rs.issue(inst, registerFile, latencies.get(opcode));
+            rs.issue(inst, registerFile, registerStatus, latencies.get(opcode));
+            System.out.println("Issued instruction: " + inst.getOpcode() + " to " + rs.getName());
             return true;
         } else {
-            return false;  // Reservation station is full or not found
+            return false;
         }
+    }
+
+    private static ReservationStation getReservationStationByName(List<ReservationStation> rsList, String name) {
+        for (ReservationStation rs : rsList) {
+            if (rs.getName().equals(name)) {
+                return rs;
+            }
+        }
+        return null;
     }
 }
