@@ -3,35 +3,53 @@ package com.microproject.microproject.model;
 public class ReservationStationEntry {
     private Instruction instruction;
     private int latency;
+
+    public int getRemainingCycles() {
+        return remainingCycles;
+    }
+
+    public void setRemainingCycles(int remainingCycles) {
+        this.remainingCycles = remainingCycles;
+    }
+
     private int remainingCycles;
+
+    public double getVj() {
+        return Vj;
+    }
+
     private double Vj;
+
+    public double getVk() {
+        return Vk;
+    }
+
     private double Vk;
+
+    public String getQj() {
+        return Qj;
+    }
+
     private String Qj;
+
+    public String getQk() {
+        return Qk;
+    }
+
     private String Qk;
     private String destination;
     private double result;
     private boolean executionStarted = false;
     private boolean executionComplete = false;
-    private String stationName; // Add this to identify the station
     private boolean resultWritten = false;
 
-    public ReservationStationEntry(Instruction instruction, int latency, String stationName) {
+    public ReservationStationEntry(Instruction instruction, int latency) {
         this.instruction = instruction;
         this.latency = latency;
         this.remainingCycles = latency;
         this.destination = instruction.getDestination();
-        this.stationName = stationName;
-    }
-    
-    public boolean isResultWritten() {
-        return resultWritten;
-    }
-    
-    public void setResultWritten(boolean resultWritten) {
-        this.resultWritten = resultWritten;
     }
 
-    
     // Setter methods for operands and tags
     public void setVj(double Vj) {
         this.Vj = Vj;
@@ -53,19 +71,21 @@ public class ReservationStationEntry {
         return (Qj == null && Qk == null);
     }
 
-    public void execute(CommonDataBus cdb) {
+    public void execute() {
         if (!executionStarted && isReady()) {
             executionStarted = true;
-            remainingCycles--;
-        } else if (executionStarted && remainingCycles > 0) {
-            remainingCycles--;
+            System.out.println("Instruction " + instruction.getOpcode() + " started execution.");
         }
 
-        if (executionStarted && remainingCycles == 0 && !executionComplete) {
-            computeResult();
-            cdb.addResult(destination, result);
-            executionComplete = true;
-            System.out.println("Executed instruction: " + instruction.getOpcode());
+        if (executionStarted && !executionComplete) {
+            if (remainingCycles > 0) {
+                remainingCycles--;
+            }
+            if (remainingCycles == 0) {
+                computeResult();
+                executionComplete = true;
+                System.out.println("Execution complete for: " + instruction.getOpcode());
+            }
         }
     }
 
@@ -106,6 +126,14 @@ public class ReservationStationEntry {
         return executionComplete;
     }
 
+    public boolean isResultWritten() {
+        return resultWritten;
+    }
+
+    public void setResultWritten(boolean resultWritten) {
+        this.resultWritten = resultWritten;
+    }
+
     public String getDestination() {
         return destination;
     }
@@ -114,12 +142,7 @@ public class ReservationStationEntry {
         return result;
     }
 
-    // Getter methods for Qj and Qk
-    public String getQj() {
-        return Qj;
-    }
-
-    public String getQk() {
-        return Qk;
+    public Instruction getInstruction() {
+        return instruction;
     }
 }

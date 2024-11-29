@@ -23,7 +23,7 @@ public class Main {
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
         latencies.put("L.D", 2);
-        latencies.put("MUL.D", 10);
+        latencies.put("MUL.D", 4);
         latencies.put("S.D", 2);
 
         // Initialize Reservation Stations
@@ -62,14 +62,27 @@ public class Main {
 
             // Execute stage
             for (ReservationStation rs : reservationStations) {
-                rs.execute(cdb);
+                rs.execute();
             }
 
             // Write-back stage
+            for (ReservationStation rs : reservationStations) {
+                rs.writeBack(cdb);
+            }
+
+            // Broadcast results
             cdb.broadcast(reservationStations, registerFile, registerStatus);
+
+            // Remove completed entries
+            for (ReservationStation rs : reservationStations) {
+                rs.removeCompletedEntries();
+            }
+
+            registerFile.printStatus();
 
             // Check for completion
             boolean done = (pc >= instructions.size());
+            System.out.println(instructions.size()+" "+pc);
             for (ReservationStation rs : reservationStations) {
                 if (!rs.isEmpty()) {
                     done = false;
@@ -81,8 +94,10 @@ public class Main {
             }
 
             cycle++;
+            if(cycle == 100)
+                break;
+            System.out.println("-----------------------------");
         }
-
         System.out.println("Simulation completed in " + cycle + " cycles.");
     }
 

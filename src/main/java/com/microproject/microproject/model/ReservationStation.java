@@ -29,7 +29,7 @@ public class ReservationStation {
     }
 
     public void issue(Instruction inst, RegisterFile registerFile, Map<String, String> registerStatus, int latency) {
-        ReservationStationEntry entry = new ReservationStationEntry(inst, latency, this.name);
+        ReservationStationEntry entry = new ReservationStationEntry(inst, latency);
 
         // Get source operands
         String src1 = inst.getSource1();
@@ -51,39 +51,80 @@ public class ReservationStation {
 
         // Update register status for destination
         String dest = inst.getDestination();
-        if (dest != null && !inst.getOpcode().startsWith("S.")) {
+        if (dest != null && !inst.getOpcode().startsWith("S.")) { // Store instructions do not write to registers
             registerStatus.put(dest, this.name);
         }
 
         entries.add(entry);
+        System.out.println("Issued instruction: " + inst.getOpcode() + " to " + this.name);
     }
 
-    public void execute(CommonDataBus cdb) {
+    public void execute() {
         for (ReservationStationEntry entry : entries) {
-            entry.execute(cdb);
+            entry.execute();
         }
+    }
 
-        // Remove entries that have finished execution
+    public void writeBack(CommonDataBus cdb) {
+        for (ReservationStationEntry entry : entries) {
+            if (entry.isExecutionComplete() && !entry.isResultWritten()) {
+                cdb.addResult(entry.getDestination(), entry.getResult());
+                entry.setResultWritten(true);
+                System.out.println("Result written for: " + entry.getInstruction().getOpcode());
+            }
+        }
+    }
+
+    public void updateEntries(CDBEntry entry) {
+        for (ReservationStationEntry rsEntry : entries) {
+            if ("ADD.D".equals(rsEntry.getInstruction().getOpcode()) || 
+                "SUB.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                "MUL.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                "DIV.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                "L.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                "S.D".equals(rsEntry.getInstruction().getOpcode())) {
+                
+                if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
+                    rsEntry.setVj(entry.getResult());
+                    rsEntry.setQj(null);
+                }
+                if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
+                    rsEntry.setVk(entry.getResult());
+                    rsEntry.setQk(null);
+                }
+            }
+        }
+    }
+
+    public void markResultWritten(String destination) {
+        for (ReservationStationEntry entry : entries) {
+            if (entry.getDestination() != null && entry.getDestination().equals(destination)) {
+                entry.setResultWritten(true);
+            }
+        }
+    }
+
+    public void removeCompletedEntries() {
         Iterator<ReservationStationEntry> iterator = entries.iterator();
         while (iterator.hasNext()) {
             ReservationStationEntry entry = iterator.next();
-            if (entry.isExecutionComplete()) {
+            if (entry.isExecutionComplete() && entry.isResultWritten()) {
                 iterator.remove();
+                System.out.println("Removed completed instruction: " + entry.getInstruction().getOpcode() + " from " + this.name);
             }
         }
     }
 
-    // Update entries when data is broadcasted on the CDB
-    public void updateEntries(CDBEntry entry) {
-        for (ReservationStationEntry rsEntry : entries) {
-            if (entry.getDestination().equals(rsEntry.getQj())) {
-                rsEntry.setVj(entry.getResult());
-                rsEntry.setQj(null);
-            }
-            if (entry.getDestination().equals(rsEntry.getQk())) {
-                rsEntry.setVk(entry.getResult());
-                rsEntry.setQk(null);
-            }
+    // For debugging purposes
+    public void printStatus() {
+        System.out.println("Reservation Station: " + name);
+        for (ReservationStationEntry entry : entries) {
+            System.out.println("  Instruction: " + entry.getInstruction().getOpcode() +
+                               ", Remaining Cycles: " + entry.getRemainingCycles() +
+                               ", Vj: " + entry.getVj() +
+                               ", Vk: " + entry.getVk() +
+                               ", Qj: " + entry.getQj() +
+                               ", Qk: " + entry.getQk());
         }
     }
 }

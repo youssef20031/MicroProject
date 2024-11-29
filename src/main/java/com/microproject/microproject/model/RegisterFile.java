@@ -70,4 +70,14 @@ public class RegisterFile {
         }
         return "";
     }
+
+    public void printStatus() {
+        System.out.println("Register Status:");
+        for (Register reg : floatRegisterFile) {
+            System.out.println("  " + reg.getName() + ": " + reg.getValue() + " (Qi: " + reg.getQi() + ")");
+        }
+        for (Register reg : integerRegisterFile) {
+            System.out.println("  " + reg.getName() + ": " + reg.getValue() + " (Qi: " + reg.getQi() + ")");
+        }
+    }
 }
