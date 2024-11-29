@@ -10,12 +10,17 @@ public class Register {
     public Register() {
     }
 
-    // Parameterized constructor
+    // Float Regiser File
     public Register(String name, double value, String Qi) {
         this.name = name;
         this.value = value;
         this.Qi = Qi;
 
+    }
+    // Integer Regiser File
+    public Register(String name, double value) {
+        this.name = name;
+        this.value = value;
     }
     public String getName() {
         return name;

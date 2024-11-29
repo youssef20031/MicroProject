@@ -37,8 +37,8 @@ public class InstructionSuperReader {
 
     public static void main(String[] args) {
         try {
-            String instructionsFilePath = "src/main/java/com/microproject/microproject/util/test.txt"; // Adjust the path as needed
-            String latenciesFilePath = "src/main/java/com/microproject/microproject/util/test2.txt"; // Adjust the path as needed
+            String instructionsFilePath = "C:\\Users\\Yusuf\\Documents\\Developer\\MP\\MicroProject\\src\\main\\java\\com\\microproject\\microproject\\util\\test.txt";
+            String latenciesFilePath = "C:\\Users\\Yusuf\\Documents\\Developer\\MP\\MicroProject\\src\\main\\java\\com\\microproject\\microproject\\util\\test2.txt"; // Adjust the path as needed
 
             List<Instruction> instructions = readInstructionsAndLatencies(instructionsFilePath, latenciesFilePath);
 

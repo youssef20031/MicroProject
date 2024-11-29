@@ -1,128 +1,56 @@
 // Java
 package com.microproject.microproject.model;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 public class ReservationStation {
+    private int capacity;
     private String name;
-    private boolean busy;
-    private String operation;
-    private String Vj;
-    private String Vk;
-    private String Qj;
-    private String Qk;
-    private int latency;
-    private int address;
+    private List<ReservationStationEntry> entries;
 
-    // Default constructor
-    public ReservationStation() {
-    }
-
-    // Reservation Station
-    public ReservationStation(String name) {
+    public ReservationStation(int capacity, String name) {
+        this.capacity = capacity;
         this.name = name;
-        this.busy = false;
-        this.operation = "";
-        this.Vj = "";
-        this.Vk = "";
-        this.Qj = "";
-        this.Qk = "";
-        this.latency = 0;
-        this.address = 0;
+        this.entries = new ArrayList<>();
     }
 
-    // Load Buffer
-    public ReservationStation(boolean busy, int address) {
-        this.busy = busy;
-        this.address = address;
-        this.operation = "";
-        this.Vj = "";
-        this.Vk = "";
-        this.Qj = "";
-        this.Qk = "";
-        this.latency = 0;
-    }
-
-    // Store Buffer
-    public ReservationStation(boolean busy, int address, String V, String Q) {
-        this.busy = busy;
-        this.address = address;
-        this.Vj = Vj;
-        this.Vk = Vk;
-        this.Qj = Qj;
-        this.Qk = Qk;
-        this.operation = "";
-        this.latency = 0;
-    }
-
-    // Getters and setters
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public boolean isFull() {
+        return entries.size() >= capacity;
     }
 
-    public boolean isBusy() {
-        return busy;
+    public boolean isEmpty() {
+        return entries.isEmpty();
     }
 
-    public void setBusy(boolean busy) {
-        this.busy = busy;
+    public void issue(Instruction inst, RegisterFile registerFile, int latency) {
+        // Create a new entry
+        ReservationStationEntry entry = new ReservationStationEntry(inst, latency);
+        // Set operands and Qj/Qk based on register status
+        entry.setupOperands(registerFile);
+        entries.add(entry);
+        System.out.println("Issued instruction: " + inst.getOpcode() + " to " + name);
     }
 
-    public String getOperation() {
-        return operation;
-    }
-
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
-
-    public String getVj() {
-        return Vj;
-    }
-
-    public void setVj(String vj) {
-        Vj = vj;
-    }
-
-    public String getVk() {
-        return Vk;
-    }
-
-    public void setVk(String vk) {
-        Vk = vk;
-    }
-
-    public String getQj() {
-        return Qj;
-    }
-
-    public void setQj(String qj) {
-        Qj = qj;
-    }
-
-    public String getQk() {
-        return Qk;
-    }
-
-    public void setQk(String qk) {
-        Qk = qk;
-    }
-
-    public int getLatency() {
-        return latency;
-    }
-
-    public void setLatency(int latency) {
-        this.latency = latency;
-    }
-
-    public int getAddress() {
-        return address;
-    }
-
-    public void setAddress(int address) {
-        this.address = address;
+    public void execute(CommonDataBus cdb) {
+        for (ReservationStationEntry entry : entries) {
+            if (entry.isReady()) {
+                entry.execute();
+            }
+        }
+        // Remove entries that have finished execution
+        Iterator<ReservationStationEntry> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            ReservationStationEntry entry = iterator.next();
+            if (entry.isExecutionComplete()) {
+                cdb.addResult(entry.getDestination(), entry.getResult());
+                iterator.remove();
+            }
+        }
     }
 }

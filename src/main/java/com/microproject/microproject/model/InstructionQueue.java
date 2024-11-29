@@ -7,6 +7,7 @@ import java.util.List;
 public class InstructionQueue {
     private List<Row> table;
 
+
     public InstructionQueue() {
         this.table = new ArrayList<>();
     }
