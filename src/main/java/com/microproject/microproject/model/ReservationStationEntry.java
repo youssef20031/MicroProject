@@ -172,7 +172,7 @@ public boolean isReady(RegisterFile registerFile) {
                 break;
             case "L.D":
             case "L.S":
-                result = Vj; // Simulated load
+                result = Vk; // Simulated load
                 break;
             case "S.D":
             case "S.S":

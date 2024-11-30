@@ -13,10 +13,12 @@ public class Main {
         // Set initial value of R1 to 70
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
         integerRegisterFile[1] = new Register("R1", 70, new ArrayList<String>());
+        integerRegisterFile[2] = new Register("R2", 10, new ArrayList<String>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));     // L.D F0, 0(R1)
+        instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));// L.D F0, 0(R1)
+        instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
         //instructions.add(new Instruction("MUL.D", 0, "F6", "F4", "F2"));  // MUL.D F4, F0, F2// MUL.D F4, F0, F2
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
