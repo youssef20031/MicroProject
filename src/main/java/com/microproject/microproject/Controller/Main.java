@@ -51,7 +51,25 @@ public class Main {
         // Main simulation loop
         while (true) {
             System.out.println("Cycle: " + cycle);
-            
+
+            // Write-back stage
+            for (ReservationStation rs : reservationStations) {
+                rs.writeBack(cdb, registerFile);
+            }
+
+            // Execute stage
+            for (ReservationStation rs : reservationStations) {
+                rs.execute(registerFile);
+            }
+
+            // Broadcast results
+            cdb.broadcast(reservationStations, registerFile, registerStatus);
+
+            // Remove completed entries
+            for (ReservationStation rs : reservationStations) {
+                rs.removeCompletedEntries();
+            }
+
             // Issue stage
             if (pc < instructions.size()) {
                 Instruction inst = instructions.get(pc);
@@ -62,27 +80,9 @@ public class Main {
                     System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
                 }
             }
-            
-            // Execute stage
-            for (ReservationStation rs : reservationStations) {
-                rs.execute(registerFile);
-            }
-            
-            // Write-back stage
-            for (ReservationStation rs : reservationStations) {
-                rs.writeBack(cdb, registerFile);
-            }
-            
-            // Broadcast results
-            cdb.broadcast(reservationStations, registerFile, registerStatus);
-            
-            // Remove completed entries
-            for (ReservationStation rs : reservationStations) {
-                rs.removeCompletedEntries();
-            }
-            
+
             registerFile.printStatus();
-            
+
             // Check for completion
             boolean done = (pc >= instructions.size());
             for (ReservationStation rs : reservationStations) {
@@ -94,12 +94,13 @@ public class Main {
             if (done) {
                 break;
             }
-            
+
             cycle++;
-            if(cycle == 100)
+            if (cycle == 100)
                 break;
             System.out.println("-----------------------------");
         }
+
         System.out.println("Simulation completed in " + cycle + " cycles.");
     }
 
