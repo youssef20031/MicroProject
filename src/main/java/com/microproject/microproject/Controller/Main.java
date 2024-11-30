@@ -12,12 +12,13 @@ public class Main {
 
         // Set initial value of R1 to 70
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        integerRegisterFile[1] = new Register("R1", 70, "");
+        integerRegisterFile[1] = new Register("R1", 70, new ArrayList<String>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));     // L.D F0, 0(R1)
-        instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));  // MUL.D F4, F0, F2
+        instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
+        //instructions.add(new Instruction("MUL.D", 0, "F6", "F4", "F2"));  // MUL.D F4, F0, F2// MUL.D F4, F0, F2
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
 
         // Latency for each operation
@@ -50,39 +51,40 @@ public class Main {
         // Main simulation loop
         while (true) {
             System.out.println("Cycle: " + cycle);
-
+            
             // Issue stage
             if (pc < instructions.size()) {
                 Instruction inst = instructions.get(pc);
                 boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
                 if (issued) {
                     pc++;
+                } else {
+                    System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
                 }
             }
-
+            
             // Execute stage
             for (ReservationStation rs : reservationStations) {
-                rs.execute();
+                rs.execute(registerFile);
             }
-
+            
             // Write-back stage
             for (ReservationStation rs : reservationStations) {
-                rs.writeBack(cdb);
+                rs.writeBack(cdb, registerFile);
             }
-
+            
             // Broadcast results
             cdb.broadcast(reservationStations, registerFile, registerStatus);
-
+            
             // Remove completed entries
             for (ReservationStation rs : reservationStations) {
                 rs.removeCompletedEntries();
             }
-
+            
             registerFile.printStatus();
-
+            
             // Check for completion
             boolean done = (pc >= instructions.size());
-            System.out.println(instructions.size()+" "+pc);
             for (ReservationStation rs : reservationStations) {
                 if (!rs.isEmpty()) {
                     done = false;
@@ -92,7 +94,7 @@ public class Main {
             if (done) {
                 break;
             }
-
+            
             cycle++;
             if(cycle == 100)
                 break;

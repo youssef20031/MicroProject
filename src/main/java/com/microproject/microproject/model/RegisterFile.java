@@ -1,17 +1,19 @@
 package com.microproject.microproject.model;
 
+import java.util.ArrayList;
+
 public class RegisterFile {
-    private Register[] floatRegisterFile;
-    private Register[] integerRegisterFile;
+    private final Register[] floatRegisterFile;
+    private final Register[] integerRegisterFile;
 
     public RegisterFile() {
         this.floatRegisterFile = new Register[32];
         for (int i = 0; i < 32; i++) {
-            floatRegisterFile[i] = new Register("F" + i, 0, "");
+            floatRegisterFile[i] = new Register("F" + i, 0, new ArrayList<String>());
         }
         this.integerRegisterFile = new Register[32];
         for (int i = 0; i < 32; i++) {
-            integerRegisterFile[i] = new Register("R" + i, 0, "");
+            integerRegisterFile[i] = new Register("R" + i, 0, new ArrayList<String>());
         }
     }
 
@@ -40,11 +42,11 @@ public class RegisterFile {
         if (name.startsWith("F")) {
             int index = Integer.parseInt(name.substring(1));
             floatRegisterFile[index].setValue(value);
-            floatRegisterFile[index].setQi(""); // Clear Qi after write-back
+            //floatRegisterFile[index].removeFirstQi(); // Clear Qi after write-back
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
             integerRegisterFile[index].setValue(value);
-            integerRegisterFile[index].setQi("");
+            //integerRegisterFile[index].removeFirstQi(); // Clear Qi after write-back
         }
     }
 
@@ -52,23 +54,33 @@ public class RegisterFile {
     public void setRegisterQi(String name, String Qi) {
         if (name.startsWith("F")) {
             int index = Integer.parseInt(name.substring(1));
-            floatRegisterFile[index].setQi(Qi);
+            floatRegisterFile[index].addQi(Qi);
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
-            integerRegisterFile[index].setQi(Qi);
+            //integerRegisterFile[index].setQi(Qi);
+        }
+    }
+
+    public void removeFirstQi(String name) {
+        if (name.startsWith("F")) {
+            int index = Integer.parseInt(name.substring(1));
+            floatRegisterFile[index].removeFirstQi();
+        } else if (name.startsWith("R")) {
+            int index = Integer.parseInt(name.substring(1));
+            //integerRegisterFile[index].removeFirstQi();
         }
     }
 
     // Get Qi for a register
-    public String getRegisterQi(String name) {
+    public ArrayList<String> getRegisterQi(String name) {
         if (name.startsWith("F")) {
             int index = Integer.parseInt(name.substring(1));
             return floatRegisterFile[index].getQi();
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
-            return integerRegisterFile[index].getQi();
+            //return integerRegisterFile[index].getQi();
         }
-        return "";
+        return new ArrayList<String>();
     }
 
     public void printStatus() {
@@ -78,6 +90,27 @@ public class RegisterFile {
         }
         for (Register reg : integerRegisterFile) {
             System.out.println("  " + reg.getName() + ": " + reg.getValue() + " (Qi: " + reg.getQi() + ")");
+        }
+    }
+
+    public Register getRegister(String name) {
+        if (name.startsWith("F")) {
+            int index = Integer.parseInt(name.substring(1));
+            return floatRegisterFile[index];
+        } else if (name.startsWith("R")) {
+            int index = Integer.parseInt(name.substring(1));
+            return integerRegisterFile[index];
+        }
+        return null;
+    }
+    // RegisterFile.java
+    public void removeQi(String name, String Qi) {
+        if (name.startsWith("F")) {
+            int index = Integer.parseInt(name.substring(1));
+            floatRegisterFile[index].removeQi(Qi);
+        } else if (name.startsWith("R")) {
+            int index = Integer.parseInt(name.substring(1));
+            // integerRegisterFile[index].removeQi(Qi);
         }
     }
 }
