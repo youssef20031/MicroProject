@@ -37,4 +37,12 @@ public class Cache {
     private static void loadBlockToCache(int blockAddress, int cacheIndex) {
         cache[cacheIndex] = new CacheBlock(blockAddress, blockSize); // Initialize block with blockSize
     }
+
+    //add data to cache
+    public static void addData(int address, Register[] data) {
+        int blockAddress = address / blockSize;
+        int cacheIndex = blockAddress % cacheSize;
+        CacheBlock cacheBlock = cache[cacheIndex];
+        cacheBlock.setData(data);
+    }
 }

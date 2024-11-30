@@ -116,22 +116,9 @@ public class ReservationStationEntry {
     }
 
     // ReservationStationEntry.java
-public boolean isReady(RegisterFile registerFile) {
-    /*if (instruction.getOpcode().equals("S.D") || instruction.getOpcode().equals("S.S")) {
-        // Recheck the destination register Qi
-        Register destReg = registerFile.getRegister(destination);
-        if (destReg != null) {
-            ArrayList<String> qiList = destReg.getQi();
-            if (qiList.size() >= 2) {
-                return false;
-            } else if (qiList.size() == 1) {
-                String qi = qiList.getFirst();
-                return qi.equals("Store");
-            }
-        }
-    }*/
-    return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty());
-}
+    public boolean isReady(RegisterFile registerFile) {
+        return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty());
+    }
 
     public void execute(RegisterFile registerFile) {
         if (!executionStarted && isReady(registerFile)) {
@@ -206,39 +193,5 @@ public boolean isReady(RegisterFile registerFile) {
 
     public Instruction getInstruction() {
         return instruction;
-    }
-
-    public void setupOperands(RegisterFile registerFile) {
-        // Handle Qj and Vj
-        if (Qj != null && !Qj.isEmpty()) {
-            Register reg1 = registerFile.getRegister(Qj.get(0));
-            if (reg1 != null) {
-                String qi = String.valueOf(reg1.getQi());
-                if (qi.isEmpty()) {
-                    this.Vj = reg1.getValue();
-                    this.Qj = null;
-                } else {
-                    this.Qj.set(0, qi);
-                }
-            } else {
-                System.err.println("Register " + Qj.get(0) + " not found.");
-            }
-        }
-
-        // Handle Qk and Vk
-        if (Qk != null && !Qk.isEmpty()) {
-            Register reg2 = registerFile.getRegister(Qk.get(0));
-            if (reg2 != null) {
-                String qi = String.valueOf(reg2.getQi());
-                if (qi.isEmpty()) {
-                    this.Vk = reg2.getValue();
-                    this.Qk = null;
-                } else {
-                    this.Qk.set(0, qi);
-                }
-            } else {
-                System.err.println("Register " + Qk.get(0) + " not found.");
-            }
-        }
     }
 }

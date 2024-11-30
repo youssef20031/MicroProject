@@ -1,6 +1,7 @@
 package com.microproject.microproject.Controller;
 
 // Java
+
 import com.microproject.microproject.model.*;
 
 import java.util.*;
@@ -10,6 +11,12 @@ public class Main {
         // Initialize Register File
         RegisterFile registerFile = new RegisterFile();
 
+        //construct the cache
+        Cache cache = new Cache(4, 16, 2, 10);
+
+        //load data into cache
+        Cache.accessData(0);
+
         // Set initial value of R1 to 70
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
         integerRegisterFile[1] = new Register("R1", 70, new ArrayList<String>());
@@ -18,10 +25,11 @@ public class Main {
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));// L.D F0, 0(R1)
-        instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
+        //instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
         //instructions.add(new Instruction("MUL.D", 0, "F6", "F4", "F2"));  // MUL.D F4, F0, F2// MUL.D F4, F0, F2
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
+        instructions.add(new Instruction("SUBI", 0, "F6", "F4", "F2"));  // ADD.D F6, F4, F2
 
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
