@@ -82,22 +82,7 @@ public class ReservationStation {
 
     public void execute(RegisterFile registerFile) {
         for (ReservationStationEntry entry : entries) {
-                String opcode = entry.getInstruction().getOpcode();
-                String dest = entry.getInstruction().getDestination();
-
-                // For instructions that write to a register, verify Qi is correctly set
-                if (opcode.equals("S.D")) {
-                    ArrayList<String> qi = registerFile.getRegisterQi(dest);
-                    if (qi != null) {
-                        //entry.execute();
-                        if (qi.size() == 1 && qi.getFirst().equals(this.name)) {
-                         entry.execute(registerFile);
-                        }
-                    }
-                } else {
-                    // For store instructions, execute as they don't write to a register
-                    entry.execute(registerFile);
-                }
+            entry.execute(registerFile);
         }
     }
 
@@ -137,6 +122,13 @@ public class ReservationStation {
                 if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
                     rsEntry.setVk(entry.getResult());
                     rsEntry.setQk(null);
+                }
+                if("S.D".equals(rsEntry.getInstruction().getOpcode())){
+
+                        if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                            rsEntry.setVj(entry.getResult());
+                            rsEntry.setQj(null);
+                        }
                 }
             }
         }

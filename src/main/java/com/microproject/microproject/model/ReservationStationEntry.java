@@ -117,7 +117,7 @@ public class ReservationStationEntry {
 
     // ReservationStationEntry.java
 public boolean isReady(RegisterFile registerFile) {
-    if (instruction.getOpcode().equals("S.D") || instruction.getOpcode().equals("S.S")) {
+    /*if (instruction.getOpcode().equals("S.D") || instruction.getOpcode().equals("S.S")) {
         // Recheck the destination register Qi
         Register destReg = registerFile.getRegister(destination);
         if (destReg != null) {
@@ -127,10 +127,9 @@ public boolean isReady(RegisterFile registerFile) {
             } else if (qiList.size() == 1) {
                 String qi = qiList.getFirst();
                 return qi.equals("Store");
-
             }
         }
-    }
+    }*/
     return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty());
 }
 
