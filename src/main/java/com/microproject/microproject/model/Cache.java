@@ -7,8 +7,8 @@ public class Cache {
     private static int cacheHitLatency;
     private static int cacheMissPenalty;
     private static CacheBlock[] cache;
+    private static boolean gotAccessed = false;
 
-    // Constructor to configure the cache
     public Cache(int blockSize, int cacheSize, int cacheHitLatency, int cacheMissPenalty) {
         Cache.blockSize = blockSize;
         Cache.cacheSize = cacheSize;
@@ -23,26 +23,59 @@ public class Cache {
         int cacheIndex = blockAddress % cacheSize;
         CacheBlock cacheBlock = cache[cacheIndex];
 
-        if (cacheBlock != null && cacheBlock.isValid() && cacheBlock.getAddress() == blockAddress) {
-            // Cache hit
+        if (gotAccessed) {
             return cacheHitLatency;
         } else {
-            // Cache miss
-            loadBlockToCache(blockAddress, cacheIndex);
+            gotAccessed = true;
             return cacheMissPenalty;
         }
     }
 
-    // Method to load a block into the cache
-    private static void loadBlockToCache(int blockAddress, int cacheIndex) {
-        cache[cacheIndex] = new CacheBlock(blockAddress, blockSize); // Initialize block with blockSize
+    // Java
+    public static void loadBlockWithData(int address, double data) {
+        int blockAddress = address / blockSize;
+        int cacheIndex = blockAddress % cacheSize;
+        CacheBlock cacheBlock = new CacheBlock(blockAddress);
+        cacheBlock.setData(data);
+        cache[cacheIndex] = cacheBlock;
     }
 
-    //add data to cache
-    public static void addData(int address, Register[] data) {
+    public static double readData(int address) {
         int blockAddress = address / blockSize;
         int cacheIndex = blockAddress % cacheSize;
         CacheBlock cacheBlock = cache[cacheIndex];
-        cacheBlock.setData(data);
+
+
+            // Cache hit
+            return cacheBlock.getData();
+
+    }
+
+    // Write data to cache
+    public static void writeData(int address, double data) {
+        int blockAddress = address / blockSize;
+        int cacheIndex = blockAddress % cacheSize;
+        CacheBlock cacheBlock = cache[cacheIndex];
+
+        if (cacheBlock != null && cacheBlock.isValid() && cacheBlock.getAddress() == blockAddress) {
+            // Cache hit - write data
+            cacheBlock.setData(data);
+            cacheBlock.setDirty(true);
+        } else {
+            // Cache miss - load block into cache and then write data
+            loadBlockWithData(address, data);
+            //cacheBlock = cache[cacheIndex];
+            //cacheBlock.setData(data);
+            //cacheBlock.setDirty(true);
+        }
+    }
+    public String toString() {
+        for (int i = 0; i < cacheSize; i++) {
+            CacheBlock cacheBlock = cache[i];
+            if (cacheBlock != null) {
+                System.out.println("Block " + i + ": " + cacheBlock.getData());
+            }
+        }
+        return null;
     }
 }

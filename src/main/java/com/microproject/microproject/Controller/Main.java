@@ -15,26 +15,29 @@ public class Main {
         Cache cache = new Cache(4, 16, 2, 10);
 
         //load data into cache
-        Cache.accessData(0);
+        //Cache.accessData(0);
+        Cache.loadBlockWithData(0, 10);
+        Cache.loadBlockWithData(4, 20);
 
         // Set initial value of R1 to 70
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        integerRegisterFile[1] = new Register("R1", 70, new ArrayList<String>());
-        integerRegisterFile[2] = new Register("R2", 10, new ArrayList<String>());
+        integerRegisterFile[1] = new Register("R1", 4, new ArrayList<String>());
+        integerRegisterFile[2] = new Register("R2", 0, new ArrayList<String>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));// L.D F0, 0(R1)
-        //instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
+        instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
-        //instructions.add(new Instruction("MUL.D", 0, "F6", "F4", "F2"));  // MUL.D F4, F0, F2// MUL.D F4, F0, F2
+        //instructions.add(new Instruction("ADD.D", 0, "F6", "F3", "F5"));  // MUL.D F4, F0, F2// MUL.D F4, F0, F2
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
-        instructions.add(new Instruction("SUBI", 0, "F6", "F4", "F2"));  // ADD.D F6, F4, F2
+        //instructions.add(new Instruction("SUBI", 0, "F6", "F4", "F2"));  // ADD.D F6, F4, F2
 
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
         latencies.put("L.D", 2);
         latencies.put("MUL.D", 4);
+        latencies.put("ADD.D", 5);
         latencies.put("S.D", 2);
 
         // Initialize Reservation Stations
@@ -92,6 +95,8 @@ public class Main {
             }
 
             registerFile.printStatus();
+            System.out.println("Cache Status:");
+            System.out.println(cache.toString());
 
             // Check for completion
             boolean done = (pc >= instructions.size());

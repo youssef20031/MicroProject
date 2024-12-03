@@ -131,14 +131,16 @@ public class ReservationStationEntry {
                 remainingCycles--;
             }
             if (remainingCycles == 0) {
-                computeResult();
+                computeResult(registerFile);
                 executionComplete = true;
                 System.out.println("Execution complete for: " + instruction.getOpcode());
             }
         }
     }
 
-    private void computeResult() {
+// ReservationStationEntry.java
+
+    private void computeResult(RegisterFile registerFile) {
         String opcode = instruction.getOpcode();
         switch (opcode) {
             case "ADD.D":
@@ -159,18 +161,23 @@ public class ReservationStationEntry {
                 break;
             case "L.D":
             case "L.S":
-                result = Vk; // Simulated load
+                // Load data from cache using the effective address in Vk
+                int loadAddress = (int) Vk;
+                Cache.accessData(loadAddress); // Simulate cache latency
+                result = Cache.readData(loadAddress);
                 break;
             case "S.D":
             case "S.S":
-                result = Vj; // Simulated store
+                // Store data to cache using the effective address in Vk and data in Vj
+                int storeAddress = (int) Vk;
+                Cache.accessData(storeAddress); // Simulate cache latency
+                Cache.writeData(storeAddress, Vj);
                 break;
             default:
                 System.out.println("Unknown opcode: " + opcode);
                 break;
         }
     }
-
     public boolean isExecutionComplete() {
         return executionComplete;
     }

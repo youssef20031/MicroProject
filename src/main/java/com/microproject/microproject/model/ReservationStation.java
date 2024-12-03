@@ -42,33 +42,62 @@ public class ReservationStation {
         String src2 = inst.getSource2();
         String dest = destination;
 
-        // Check Qi for source1 from registerFile
-        if (src1 != null && !src1.isEmpty()) {
-            ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
-            if (src1Qi != null && !src1Qi.isEmpty()) {
-                entry.addQj(src1Qi.getLast());
-            } else {
-                entry.setVj(registerFile.getRegisterValue(src1));
-            }
-        }
 
-        // Check Qi for source2 from registerFile
-        if (src2 != null && !src2.isEmpty()) {
-            ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
-            if (src2Qi != null && !src2Qi.isEmpty()) {
-                entry.addQk(src2Qi.getLast());
-            } else {
-                entry.setVk(registerFile.getRegisterValue(src2));
-            }
-        }
+        if (opcode.equals("L.D") || opcode.equals("L.S")) {
+            // For Load: Compute effective address Vk = base register value + offset
+            double baseValue = registerFile.getRegisterValue(src2);
+            int offset = Integer.parseInt(src1);
+            double effectiveAddress = baseValue + offset;
+            entry.setVk(effectiveAddress);
 
-        if (opcode.equals("S.D")) {
-            ArrayList<String> destQi = registerFile.getRegisterQi(dest);
-            //ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
-            if (destQi != null && !destQi.isEmpty()) {
-                entry.addQj(destQi.getLast());
+            // Destination register Qi is set to this reservation station
+            //registerFile.setRegisterQi(dest, this.name);
+        } else if (opcode.equals("S.D") || opcode.equals("S.S")) {
+            // For Store: Compute effective address Vk = base register value + offset
+            double baseValue = registerFile.getRegisterValue(src2);
+            int offset = Integer.parseInt(src1);
+            double effectiveAddress = baseValue + offset;
+            entry.setVk(effectiveAddress);
+
+            // Get data to store from the destination register
+            if (registerFile.getRegisterQi(dest) != null && !registerFile.getRegisterQi(dest).isEmpty()) {
+                ArrayList<String> destQi = registerFile.getRegisterQi(dest);
+                if (destQi != null && !destQi.isEmpty()) {
+                    entry.addQj(destQi.getLast());
+                }
             } else {
                 entry.setVj(registerFile.getRegisterValue(dest));
+            }
+        }
+        else{
+            // Check Qi for source1 from registerFile
+            if (src1 != null && !src1.isEmpty()) {
+                ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
+                if (src1Qi != null && !src1Qi.isEmpty()) {
+                    entry.addQj(src1Qi.getLast());
+                } else {
+                    entry.setVj(registerFile.getRegisterValue(src1));
+                }
+            }
+
+            // Check Qi for source2 from registerFile
+            if (src2 != null && !src2.isEmpty()) {
+                ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
+                if (src2Qi != null && !src2Qi.isEmpty()) {
+                    entry.addQk(src2Qi.getLast());
+                } else {
+                    entry.setVk(registerFile.getRegisterValue(src2));
+                }
+            }
+
+            if (opcode.equals("S.D")) {
+                ArrayList<String> destQi = registerFile.getRegisterQi(dest);
+                //ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
+                if (destQi != null && !destQi.isEmpty()) {
+                    entry.addQj(destQi.getLast());
+                } else {
+                    entry.setVj(registerFile.getRegisterValue(dest));
+                }
             }
         }
         registerFile.setRegisterQi(destination, this.name);
