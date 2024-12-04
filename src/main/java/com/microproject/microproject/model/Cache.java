@@ -18,16 +18,16 @@ public class Cache {
     }
 
     // Method to access data in the cache
-    public static int accessData(int address) {
+    public static boolean accessData(int address) {
         int blockAddress = address / blockSize;
         int cacheIndex = blockAddress % cacheSize;
         CacheBlock cacheBlock = cache[cacheIndex];
 
         if (gotAccessed) {
-            return cacheHitLatency;
+            return false;
         } else {
             gotAccessed = true;
-            return cacheMissPenalty;
+            return true;
         }
     }
 
@@ -69,6 +69,23 @@ public class Cache {
             //cacheBlock.setDirty(true);
         }
     }
+
+    public static boolean isGotAccessed() {
+        return gotAccessed;
+    }
+
+    public static void setGotAccessed(boolean gotAccessed) {
+        Cache.gotAccessed = gotAccessed;
+    }
+
+    public static void gotAccessed() {
+        gotAccessed = true;
+    }
+
+    public static int getCacheMissPenalty() {
+        return cacheMissPenalty;
+    }
+
     public String toString() {
         for (int i = 0; i < cacheSize; i++) {
             CacheBlock cacheBlock = cache[i];

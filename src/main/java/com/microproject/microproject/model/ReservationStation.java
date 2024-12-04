@@ -89,16 +89,6 @@ public class ReservationStation {
                     entry.setVk(registerFile.getRegisterValue(src2));
                 }
             }
-
-            if (opcode.equals("S.D")) {
-                ArrayList<String> destQi = registerFile.getRegisterQi(dest);
-                //ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
-                if (destQi != null && !destQi.isEmpty()) {
-                    entry.addQj(destQi.getLast());
-                } else {
-                    entry.setVj(registerFile.getRegisterValue(dest));
-                }
-            }
         }
         registerFile.setRegisterQi(destination, this.name);
         entries.add(entry);

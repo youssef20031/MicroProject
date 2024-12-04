@@ -2,6 +2,8 @@ package com.microproject.microproject.model;
 
 import java.util.ArrayList;
 
+import com.microproject.microproject.model.Cache;
+
 public class ReservationStationEntry {
     private Instruction instruction;
     private int latency;
@@ -124,8 +126,13 @@ public class ReservationStationEntry {
         if (!executionStarted && isReady(registerFile)) {
             executionStarted = true;
             System.out.println("Instruction " + instruction.getOpcode() + " started execution.");
+            if (instruction.getOpcode().equals("L.D") || instruction.getOpcode().equals("L.S")) {
+                if (!Cache.isGotAccessed()) {
+                    Cache.gotAccessed();
+                    remainingCycles = Math.max(remainingCycles, Cache.getCacheMissPenalty());
+                }
+            }
         }
-
         if (executionStarted && !executionComplete) {
             if (remainingCycles > 0) {
                 remainingCycles--;
