@@ -1,7 +1,5 @@
 package com.microproject.microproject.Controller;
 
-// Java
-
 import com.microproject.microproject.model.*;
 
 import java.util.*;
@@ -11,27 +9,29 @@ public class Main {
         // Initialize Register File
         RegisterFile registerFile = new RegisterFile();
 
-        //construct the cache
+        // Construct the cache
         Cache cache = new Cache(4, 16, 2, 10);
 
-        //load data into cache
-        //Cache.accessData(0);
+        // Load data into cache
         Cache.loadBlockWithData(0, 10);
         Cache.loadBlockWithData(4, 20);
 
-        // Set initial value of R1 to 70
+        // Set initial value of R1 and R2
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        integerRegisterFile[1] = new Register("R1", 4, new ArrayList<String>());
-        integerRegisterFile[2] = new Register("R2", 0, new ArrayList<String>());
+        integerRegisterFile[1] = new Register("R1", 4, new ArrayList<>());
+        integerRegisterFile[2] = new Register("R2", 5, new ArrayList<>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));// L.D F0, 0(R1)
         instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
-        //instructions.add(new Instruction("ADD.D", 0, "F6", "F3", "F5"));  // MUL.D F4, F0, F2// MUL.D F4, F0, F2
+        instructions.add(new Instruction("ADD", 0, "R3", "R1", "R2"));
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
-        //instructions.add(new Instruction("SUBI", 0, "F6", "F4", "F2"));  // ADD.D F6, F4, F2
+
+        // Add more instructions as needed
+        // instructions.add(new Instruction("ADDI", 0, "R4", "R3", "10"));
+        // instructions.add(new Instruction("SUB", 0, "R5", "R4", "R1"));
 
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
@@ -61,16 +61,19 @@ public class Main {
         int cycle = 1;
         int pc = 0;  // Program counter
 
+        // Initialize IntegerPipeline
+        IntegerPipeline integerPipeline = new IntegerPipeline();
+
         // Main simulation loop
         while (true) {
             System.out.println("Cycle: " + cycle);
 
-            // Write-back stage
+            // Write-back stage for floating-point instructions
             for (ReservationStation rs : reservationStations) {
                 rs.writeBack(cdb, registerFile);
             }
 
-            // Execute stage
+            // Execute stage for floating-point instructions
             for (ReservationStation rs : reservationStations) {
                 rs.execute(registerFile);
             }
@@ -83,20 +86,43 @@ public class Main {
                 rs.removeCompletedEntries();
             }
 
+            // Inside your main simulation loop
+
+
+// Write Back Stage for Integer Pipeline
+            integerPipeline.writeBackStage(registerFile);
+
+// Execute Stage for Integer Pipeline
+            integerPipeline.executeStage(registerFile);
+
+// Decode Stage for Integer Pipeline
+            integerPipeline.decodeStage(registerFile);
+
+// Fetch Stage for Integer Pipeline
+            integerPipeline.fetchStage();
+
+
             // Issue stage
             if (pc < instructions.size()) {
                 Instruction inst = instructions.get(pc);
-                boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
-                if (issued) {
+                if (inst.isIntegerInstruction()) {
+                    // Send integer instructions to integer pipeline
+                    integerPipeline.fetch(inst);
                     pc++;
                 } else {
-                    System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
+                    // Existing Tomasulo issue logic for floating-point instructions
+                    boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
+                    if (issued) {
+                        pc++;
+                    } else {
+                        System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
+                    }
                 }
             }
 
             registerFile.printStatus();
             System.out.println("Cache Status:");
-            System.out.println(cache.toString());
+            System.out.println(cache);
 
             // Check for completion
             boolean done = (pc >= instructions.size());
@@ -106,6 +132,11 @@ public class Main {
                     break;
                 }
             }
+            // Also check if integer pipeline is empty
+            if (!integerPipeline.isEmpty()) {
+                done = false;
+            }
+
             if (done) {
                 break;
             }
