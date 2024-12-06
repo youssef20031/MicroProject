@@ -1,7 +1,10 @@
 package com.microproject.microproject.model;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import static com.microproject.microproject.model.ReadAddressFromText.readAddresses;
 
 public class IntegerPipeline {
     private Queue<Instruction> fetchQueue;
@@ -32,7 +35,7 @@ public class IntegerPipeline {
             Instruction instr = memoryQueue.poll();
             memoryAccess(instr, registerFile, cache);
             // For load instructions, proceed to write-back stage
-                writeBackQueue.offer(instr);
+            writeBackQueue.offer(instr);
 
             System.out.println("Memory access for instruction " + instr.getOpcode());
         }
@@ -78,7 +81,9 @@ public class IntegerPipeline {
         if (opcode.equals("LW") || opcode.equals("LD") || opcode.equals("SW") || opcode.equals("SD")) {
             // For load/store, source1 is base register, source2 is offset or data register
             instr.setSrc1Value(registerFile.getRegisterValue(instr.getSource2())); // Base register
-            instr.setSrc2Value(Double.parseDouble(instr.getSource1()));            // Offset
+            instr.setSrc2Value(Double.parseDouble(instr.getSource1()));// Offset
+
+
             if (opcode.equals("SW") || opcode.equals("SD")) {
                 // For store, the data to store is in the destination register
                 instr.setDataToStore(registerFile.getRegisterValue(instr.getDestination()));
@@ -111,6 +116,28 @@ public class IntegerPipeline {
                 break;
             case "LW":
             case "LD":
+                result = src1 + src2;
+                instr.setEffectiveAddress((int) result);
+                if (Cache.isSlotEmpty((int) result)) {
+                    // Cache miss: Slot is empty
+                    //Cache.gotAccessed(); // Mark cache as accessed
+                    String filePath = "src/main/java/com/microproject/microproject/text/address.txt";
+                    ArrayList<int[]> addresses = readAddresses(filePath);
+
+                    //search for the address in the text file
+                    for (int[] address : addresses) {
+                        if (address[0] == (int) result) {
+                            Cache.loadBlockWithData(address[0], address[1]);
+                            break;
+                        }
+                    }
+                    //remainingCycles = Math.max(remainingCycles, Cache.getCacheMissPenalty());
+                    System.out.println("Cache miss at address " + (int) result + ". Applying miss penalty.");
+                } else {
+                    // Cache hit: Slot contains valid data
+                    System.out.println("Cache hit at address " + (int) result + ".");
+                }
+                break;
             case "SW":
             case "SD":
                 // Calculate effective address

@@ -14,17 +14,17 @@ public class Main {
 
         // Load data into cache
         Cache.loadBlockWithData(0, 10);
-        Cache.loadBlockWithData(4, 20);
+        //Cache.loadBlockWithData(4, 20);
 
         // Set initial value of R1 and R2
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
         integerRegisterFile[1] = new Register("R1", 4, new ArrayList<>());
-        integerRegisterFile[2] = new Register("R2", 5, new ArrayList<>());
+        integerRegisterFile[2] = new Register("R2", 10, new ArrayList<>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
-        //instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));// L.D F0, 0(R1)
-        //instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
+        instructions.add(new Instruction("LD", 0, "R0", "5", "0"));// L.D F0, 0(R1)
+        instructions.add(new Instruction("LD", 0, "R2", "0", "R2"));// L.D F2, 0(R2)
         //instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
         //instructions.add(new Instruction("ADD", 0, "R3", "R1", "R2"));
         //instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
@@ -32,8 +32,9 @@ public class Main {
         // Add more instructions as needed
         // instructions.add(new Instruction("ADDI", 0, "R4", "R3", "10"));
         // instructions.add(new Instruction("SUB", 0, "R5", "R4", "R1"));
-        instructions.add(new Instruction("ADDI", 0, "R0", "0", "4"));
-
+        // instructions.add(new Instruction("SD", 0, "R1", "0", "0"));
+        //instructions.add(new Instruction("LW", 0, "R6", "0", "R1"));
+        //instructions.add(new Instruction("SW", 0, "R6", "0", "0"));
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
         latencies.put("L.D", 2);

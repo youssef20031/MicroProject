@@ -33,21 +33,36 @@ public class Cache {
 
     // Java
     public static void loadBlockWithData(int address, double data) {
+        // Calculate number of blocks in cache
+        int blockCount = cacheSize / blockSize;
+
+        // Calculate block address and cache index
         int blockAddress = address / blockSize;
-        int cacheIndex = blockAddress % cacheSize;
+        int cacheIndex = blockAddress % blockCount;
+
+        // Create and store the cache block
         CacheBlock cacheBlock = new CacheBlock(blockAddress);
         cacheBlock.setData(data);
         cache[cacheIndex] = cacheBlock;
     }
 
+    //get cacheblock with address from cache
+    public static boolean getCacheBlock(int address) {
+        for (int i = 0; i < cacheSize; i++) {
+            CacheBlock cacheBlock = cache[i];
+            if (cacheBlock != null && cacheBlock.getAddress() == address) {
+                return false;
+            }
+        }return true;
+    }
     public static double readData(int address) {
         int blockAddress = address / blockSize;
         int cacheIndex = blockAddress % cacheSize;
         CacheBlock cacheBlock = cache[cacheIndex];
 
 
-            // Cache hit
-            return cacheBlock.getData();
+        // Cache hit
+        return cacheBlock.getData();
 
     }
 
@@ -84,6 +99,20 @@ public class Cache {
 
     public static int getCacheMissPenalty() {
         return cacheMissPenalty;
+    }
+
+    public static boolean isSlotEmpty(int cacheSlotAddress) {
+        /*int blockAddress = cacheSlotAddress / blockSize;
+        int cacheIndex = blockAddress % cacheSize;
+        CacheBlock cacheBlock = cache[cacheIndex];*/
+        return getCacheBlock(cacheSlotAddress);
+    }
+
+    public static void addEmptyBlock(int address) {
+        int blockAddress = address / blockSize;
+        int cacheIndex = blockAddress % cacheSize;
+        CacheBlock cacheBlock = new CacheBlock(blockAddress);
+        cache[cacheIndex] = cacheBlock;
     }
 
     public String toString() {

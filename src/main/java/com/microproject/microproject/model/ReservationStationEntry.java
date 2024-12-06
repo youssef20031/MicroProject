@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import com.microproject.microproject.model.Cache;
 
+import static com.microproject.microproject.model.ReadAddressFromText.readAddresses;
+
 public class ReservationStationEntry {
     private Instruction instruction;
     private int latency;
@@ -58,7 +60,6 @@ public class ReservationStationEntry {
     }
 
 
-
     public int getRemainingCycles() {
         return remainingCycles;
     }
@@ -104,12 +105,14 @@ public class ReservationStationEntry {
     public void setQk(ArrayList<String> Qk) {
         this.Qk = Qk;
     }
+
     public void addQj(String Qj) {
         if (this.Qj == null) {
             this.Qj = new ArrayList<>();
         }
         this.Qj.add(Qj);
     }
+
     public void addQk(String Qk) {
         if (this.Qk == null) {
             this.Qk = new ArrayList<>();
@@ -127,9 +130,27 @@ public class ReservationStationEntry {
             executionStarted = true;
             System.out.println("Instruction " + instruction.getOpcode() + " started execution.");
             if (instruction.getOpcode().equals("L.D") || instruction.getOpcode().equals("L.S")) {
-                if (!Cache.isGotAccessed()) {
-                    Cache.gotAccessed();
+                // Assuming Vk holds the effective address for load instructions
+                int cacheSlotAddress = (int) Vk;
+                // Check if the cache slot at the effective address is empty
+                if (Cache.isSlotEmpty(cacheSlotAddress)) {
+                    // Cache miss: Slot is empty
+                    //Cache.gotAccessed(); // Mark cache as accessed
+                    String filePath = "src/main/java/com/microproject/microproject/text/address.txt";
+                    ArrayList<int[]> addresses = readAddresses(filePath);
+
+                    //search for the address in the text file
+                    for (int[] address : addresses) {
+                        if (address[0] == cacheSlotAddress) {
+                            Cache.loadBlockWithData(address[0], address[1]);
+                            break;
+                        }
+                    }
                     remainingCycles = Math.max(remainingCycles, Cache.getCacheMissPenalty());
+                    System.out.println("Cache miss at address " + cacheSlotAddress + ". Applying miss penalty.");
+                } else {
+                    // Cache hit: Slot contains valid data
+                    System.out.println("Cache hit at address " + cacheSlotAddress + ".");
                 }
             }
         }
@@ -185,6 +206,7 @@ public class ReservationStationEntry {
                 break;
         }
     }
+
     public boolean isExecutionComplete() {
         return executionComplete;
     }
@@ -208,4 +230,6 @@ public class ReservationStationEntry {
     public Instruction getInstruction() {
         return instruction;
     }
+
+
 }
