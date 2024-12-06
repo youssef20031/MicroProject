@@ -9,6 +9,9 @@ public class Instruction {
     private double src1Value;
     private double src2Value;
     private double result;
+    private double dataToStore;
+    private int effectiveAddress;
+    private double LoadedData;
 
     // Default constructor
     public Instruction() {
@@ -68,6 +71,12 @@ public class Instruction {
     public boolean isIntegerInstruction() {
         switch (opcode) {
             case "ADD":
+            case "DADDI":
+                case "DSUBI":
+            case "LW":
+            case "SW":
+            case "LD":
+            case "SD":
             case "SUB":
             case "ADDI":
             case "SUBI":
@@ -100,5 +109,45 @@ public class Instruction {
 
     public double getResult() {
         return result;
+    }
+    public double getDataToStore() {
+        return dataToStore;
+    }
+
+    public void setDataToStore(double dataToStore) {
+        this.dataToStore = dataToStore;
+    }
+    public int getEffectiveAddress() {
+        return effectiveAddress;
+    }
+
+    public void setEffectiveAddress(int effectiveAddress) {
+        this.effectiveAddress = effectiveAddress;
+    }
+    public double getLoadedData() {
+        return LoadedData;
+    }
+
+    public void setLoadedData(double loadedData) {
+        LoadedData = loadedData;
+    }
+    public String[] getSourceRegisters() {
+        String opcode = this.opcode.toUpperCase();
+        if (opcode.equals("SW") || opcode.equals("SD")) {
+            return new String[] { this.destination, this.source1 };
+        } else if (opcode.equals("LW") || opcode.equals("LD")) {
+            return new String[] { this.source1 };
+        } else {
+            return new String[] { this.source1, this.source2 };
+        }
+    }
+
+    public String getDestinationRegister() {
+        String opcode = this.opcode.toUpperCase();
+        if (opcode.equals("SW") || opcode.equals("SD")) {
+            // Store instructions do not write to a register
+            return null;
+        }
+        return this.destination;
     }
 }

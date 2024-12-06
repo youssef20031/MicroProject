@@ -23,15 +23,16 @@ public class Main {
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));// L.D F0, 0(R1)
-        instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
-        instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
-        instructions.add(new Instruction("ADD", 0, "R3", "R1", "R2"));
-        instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
+        //instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));// L.D F0, 0(R1)
+        //instructions.add(new Instruction("L.D", 0, "F2", "0", "R2"));// L.D F2, 0(R2)
+        //instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
+        //instructions.add(new Instruction("ADD", 0, "R3", "R1", "R2"));
+        //instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
 
         // Add more instructions as needed
         // instructions.add(new Instruction("ADDI", 0, "R4", "R3", "10"));
         // instructions.add(new Instruction("SUB", 0, "R5", "R4", "R1"));
+        instructions.add(new Instruction("ADDI", 0, "R0", "0", "4"));
 
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
@@ -91,6 +92,9 @@ public class Main {
 
 // Write Back Stage for Integer Pipeline
             integerPipeline.writeBackStage(registerFile);
+
+// Memory Stage for Integer Pipeline
+            integerPipeline.memoryStage(registerFile, cache);
 
 // Execute Stage for Integer Pipeline
             integerPipeline.executeStage(registerFile);
