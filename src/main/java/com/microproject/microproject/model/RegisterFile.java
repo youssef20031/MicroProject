@@ -57,7 +57,7 @@ public class RegisterFile {
             floatRegisterFile[index].addQi(Qi);
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
-            //integerRegisterFile[index].setQi(Qi);
+            integerRegisterFile[index].addQi(Qi);
         }
     }
 
@@ -67,7 +67,7 @@ public class RegisterFile {
             floatRegisterFile[index].removeFirstQi();
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
-            //integerRegisterFile[index].removeFirstQi();
+            integerRegisterFile[index].removeFirstQi();
         }
     }
 
@@ -78,7 +78,7 @@ public class RegisterFile {
             return floatRegisterFile[index].getQi();
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
-            //return integerRegisterFile[index].getQi();
+            return integerRegisterFile[index].getQi();
         }
         return new ArrayList<String>();
     }
@@ -110,7 +110,7 @@ public class RegisterFile {
             floatRegisterFile[index].removeQi(Qi);
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
-            // integerRegisterFile[index].removeQi(Qi);
+             integerRegisterFile[index].removeQi(Qi);
         }
     }
 }

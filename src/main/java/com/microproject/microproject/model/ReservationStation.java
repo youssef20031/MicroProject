@@ -43,16 +43,23 @@ public class ReservationStation {
         String dest = destination;
 
 
-        if (opcode.equals("L.D") || opcode.equals("L.S")) {
-            // For Load: Compute effective address Vk = base register value + offset
-            double baseValue = registerFile.getRegisterValue(src2);
-            int offset = Integer.parseInt(src1);
-            double effectiveAddress = baseValue + offset;
-            entry.setVk(effectiveAddress);
+        if (opcode.equals("L.D") || opcode.equals("L.S") || opcode.equals("LD") || opcode.equals("LW")) {
+
+            if (src2 != null && !src2.isEmpty()) {
+                ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
+                if (src2Qi != null && !src2Qi.isEmpty()) {
+                    entry.addQk(src2Qi.getLast());
+                } else {
+                    double baseValue = registerFile.getRegisterValue(src2);
+                    int offset = Integer.parseInt(src1);
+                    double effectiveAddress = baseValue + offset;
+                    entry.setVk(effectiveAddress);
+                }
+            }
 
             // Destination register Qi is set to this reservation station
             //registerFile.setRegisterQi(dest, this.name);
-        } else if (opcode.equals("S.D") || opcode.equals("S.S")) {
+        } else if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
             // For Store: Compute effective address Vk = base register value + offset
             double baseValue = registerFile.getRegisterValue(src2);
             int offset = Integer.parseInt(src1);
@@ -86,7 +93,10 @@ public class ReservationStation {
                 if (src2Qi != null && !src2Qi.isEmpty()) {
                     entry.addQk(src2Qi.getLast());
                 } else {
-                    entry.setVk(registerFile.getRegisterValue(src2));
+                    if(src2.charAt(0) != 'F' && src2.charAt(0) != 'R')
+                        entry.setVk(Integer.parseInt(src2));
+                    else
+                        entry.setVk(registerFile.getRegisterValue(src2));
                 }
             }
         }

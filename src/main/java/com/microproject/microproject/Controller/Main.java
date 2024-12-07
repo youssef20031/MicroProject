@@ -24,9 +24,9 @@ public class Main {
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(new Instruction("LD", 0, "R0", "5", "0"));// L.D F0, 0(R1)
-        instructions.add(new Instruction("LD", 0, "R2", "0", "R2"));// L.D F2, 0(R2)
+        instructions.add(new Instruction("LD", 0, "R2", "0", "R0"));// L.D F2, 0(R2)
         //instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
-        //instructions.add(new Instruction("ADD", 0, "R3", "R1", "R2"));
+//        instructions.add(new Instruction("DADDI", 0, "R3", "R1", "R2"));
         //instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
 
         // Add more instructions as needed
@@ -41,6 +41,8 @@ public class Main {
         latencies.put("MUL.D", 4);
         latencies.put("ADD.D", 5);
         latencies.put("S.D", 2);
+        latencies.put("DADDI", 2);
+        latencies.put("LD", 2);
 
         // Initialize Reservation Stations
         ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
@@ -48,9 +50,15 @@ public class Main {
         ReservationStation loadRS = new ReservationStation(2, "Load");
         ReservationStation storeRS = new ReservationStation(2, "Store");
 
+        // Initialize Integer Reservation Stations
+        ReservationStation integerAddSubRS = new ReservationStation(3, "Add/SubI");
+        ReservationStation integerMulDivRS = new ReservationStation(2, "Mul/DivI");
+        ReservationStation integerLoadRS = new ReservationStation(2, "LoadI");
+        ReservationStation integerStoreRS = new ReservationStation(2, "StoreI");
+
         // List of reservation stations
         List<ReservationStation> reservationStations = Arrays.asList(
-                addSubRS, mulDivRS, loadRS, storeRS
+                addSubRS, mulDivRS, loadRS, storeRS, integerAddSubRS, integerMulDivRS, integerLoadRS, integerStoreRS
         );
 
         // Initialize Common Data Bus
@@ -64,7 +72,7 @@ public class Main {
         int pc = 0;  // Program counter
 
         // Initialize IntegerPipeline
-        IntegerPipeline integerPipeline = new IntegerPipeline();
+//        IntegerPipeline integerPipeline = new IntegerPipeline();
 
         // Main simulation loop
         while (true) {
@@ -91,30 +99,30 @@ public class Main {
             // Inside your main simulation loop
 
 
-// Write Back Stage for Integer Pipeline
-            integerPipeline.writeBackStage(registerFile);
-
-// Memory Stage for Integer Pipeline
-            integerPipeline.memoryStage(registerFile, cache);
-
-// Execute Stage for Integer Pipeline
-            integerPipeline.executeStage(registerFile);
-
-// Decode Stage for Integer Pipeline
-            integerPipeline.decodeStage(registerFile);
-
-// Fetch Stage for Integer Pipeline
-            integerPipeline.fetchStage();
+//// Write Back Stage for Integer Pipeline
+//            integerPipeline.writeBackStage(registerFile);
+//
+//// Memory Stage for Integer Pipeline
+//            integerPipeline.memoryStage(registerFile, cache);
+//
+//// Execute Stage for Integer Pipeline
+//            integerPipeline.executeStage(registerFile);
+//
+//// Decode Stage for Integer Pipeline
+//            integerPipeline.decodeStage(registerFile);
+//
+//// Fetch Stage for Integer Pipeline
+//            integerPipeline.fetchStage();
 
 
             // Issue stage
             if (pc < instructions.size()) {
                 Instruction inst = instructions.get(pc);
-                if (inst.isIntegerInstruction()) {
-                    // Send integer instructions to integer pipeline
-                    integerPipeline.fetch(inst);
-                    pc++;
-                } else {
+//                if (inst.isIntegerInstruction()) {
+//                    // Send integer instructions to integer pipeline
+////                    integerPipeline.fetch(inst);
+//                    pc++;
+//                } else {
                     // Existing Tomasulo issue logic for floating-point instructions
                     boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
                     if (issued) {
@@ -122,7 +130,7 @@ public class Main {
                     } else {
                         System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
                     }
-                }
+//                }
             }
 
             registerFile.printStatus();
@@ -137,10 +145,10 @@ public class Main {
                     break;
                 }
             }
-            // Also check if integer pipeline is empty
-            if (!integerPipeline.isEmpty()) {
-                done = false;
-            }
+//            // Also check if integer pipeline is empty
+//            if (!integerPipeline.isEmpty()) {
+//                done = false;
+//            }
 
             if (done) {
                 break;
@@ -162,16 +170,31 @@ public class Main {
         ReservationStation rs = null;
 
         switch (opcode) {
+            case "DADDI":
+            case "ADDI":
+                rs = getReservationStationByName(reservationStations, "Add/SubI");
+                break;
             case "ADD.D":
             case "SUB.D":
                 rs = getReservationStationByName(reservationStations, "Add/Sub");
+                break;
+            case "SUBI":
+                rs = getReservationStationByName(reservationStations, "Add/SubI");
                 break;
             case "MUL.D":
             case "DIV.D":
                 rs = getReservationStationByName(reservationStations, "Mul/Div");
                 break;
+            case "LD":
+            case "LW":
+                rs = getReservationStationByName(reservationStations, "LoadI");
+                break;
             case "L.D":
+            case "L.S":
                 rs = getReservationStationByName(reservationStations, "Load");
+                break;
+            case "SD":
+                rs = getReservationStationByName(reservationStations, "StoreI");
                 break;
             case "S.D":
                 rs = getReservationStationByName(reservationStations, "Store");

@@ -129,7 +129,8 @@ public class ReservationStationEntry {
         if (!executionStarted && isReady(registerFile)) {
             executionStarted = true;
             System.out.println("Instruction " + instruction.getOpcode() + " started execution.");
-            if (instruction.getOpcode().equals("L.D") || instruction.getOpcode().equals("L.S")) {
+            if (instruction.getOpcode().equals("L.D") || instruction.getOpcode().equals("L.S") ||
+                    instruction.getOpcode().equals("LD") || instruction.getOpcode().equals("LW")) {
                 // Assuming Vk holds the effective address for load instructions
                 int cacheSlotAddress = (int) Vk;
                 // Check if the cache slot at the effective address is empty
@@ -171,10 +172,13 @@ public class ReservationStationEntry {
     private void computeResult(RegisterFile registerFile) {
         String opcode = instruction.getOpcode();
         switch (opcode) {
+            case "DADDI":
+            case "ADDI":
             case "ADD.D":
             case "ADD.S":
                 result = Vj + Vk;
                 break;
+            case "DSUBI":
             case "SUB.D":
             case "SUB.S":
                 result = Vj - Vk;
@@ -187,6 +191,8 @@ public class ReservationStationEntry {
             case "DIV.S":
                 result = Vj / Vk;
                 break;
+            case "LD":
+            case "LW":
             case "L.D":
             case "L.S":
                 // Load data from cache using the effective address in Vk
