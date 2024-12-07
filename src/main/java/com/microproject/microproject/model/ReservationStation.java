@@ -142,7 +142,16 @@ public class ReservationStation {
                     "MUL.D".equals(rsEntry.getInstruction().getOpcode()) ||
                     "DIV.D".equals(rsEntry.getInstruction().getOpcode()) ||
                     "L.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "S.D".equals(rsEntry.getInstruction().getOpcode())) {
+                    "L.S".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "S.D".equals(rsEntry.getInstruction().getOpcode())||
+                    "S.S".equals(rsEntry.getInstruction().getOpcode())||
+                    "LD".equals(rsEntry.getInstruction().getOpcode())||
+                    "LW".equals(rsEntry.getInstruction().getOpcode())||
+                    "SW".equals(rsEntry.getInstruction().getOpcode())||
+                    "DADDI".equals(rsEntry.getInstruction().getOpcode())||
+                    "SUBI".equals(rsEntry.getInstruction().getOpcode())||
+                    "DSUBI".equals(rsEntry.getInstruction().getOpcode())||
+                    "SD".equals(rsEntry.getInstruction().getOpcode())) {
 
                 if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
                     rsEntry.setVj(entry.getResult());

@@ -171,15 +171,13 @@ public class Main {
 
         switch (opcode) {
             case "DADDI":
+            case "SUBI":
             case "ADDI":
                 rs = getReservationStationByName(reservationStations, "Add/SubI");
                 break;
             case "ADD.D":
             case "SUB.D":
                 rs = getReservationStationByName(reservationStations, "Add/Sub");
-                break;
-            case "SUBI":
-                rs = getReservationStationByName(reservationStations, "Add/SubI");
                 break;
             case "MUL.D":
             case "DIV.D":
@@ -194,9 +192,11 @@ public class Main {
                 rs = getReservationStationByName(reservationStations, "Load");
                 break;
             case "SD":
+            case "SW":
                 rs = getReservationStationByName(reservationStations, "StoreI");
                 break;
             case "S.D":
+            case "S.S":
                 rs = getReservationStationByName(reservationStations, "Store");
                 break;
             default:

@@ -202,6 +202,8 @@ public class ReservationStationEntry {
                 break;
             case "S.D":
             case "S.S":
+            case "SW":
+            case "SD":
                 // Store data to cache using the effective address in Vk and data in Vj
                 int storeAddress = (int) Vk;
                 Cache.accessData(storeAddress); // Simulate cache latency
