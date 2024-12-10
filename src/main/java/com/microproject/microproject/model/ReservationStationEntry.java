@@ -18,6 +18,10 @@ public class ReservationStationEntry {
     private boolean executionStarted = false;
     private boolean executionComplete = false;
     private boolean resultWritten = false;
+    private boolean branchTaken;
+    private int branchTarget;
+    private int immediate;
+
 
     public ReservationStationEntry(Instruction instruction, int latency) {
         this.instruction = instruction;
@@ -26,6 +30,21 @@ public class ReservationStationEntry {
         this.destination = instruction.getDestination();
     }
 
+    public int getImmediate() {
+        return immediate;
+    }
+    
+    public void setImmediate(int immediate) {
+        this.immediate = immediate;
+    }
+
+    public boolean isBranchTaken() {
+        return branchTaken;
+    }
+    
+    public int getBranchTarget() {
+        return branchTarget;
+    }
 
     public int getLatency() {
         return latency;
@@ -208,6 +227,14 @@ public class ReservationStationEntry {
                 int storeAddress = (int) Vk;
                 Cache.accessData(storeAddress); // Simulate cache latency
                 Cache.writeData(storeAddress, Vj);
+                break;
+            case "BNE":
+                branchTaken = (Vj != Vk);
+                branchTarget = immediate;
+                break;
+            case "BEQ":
+                branchTaken = (Vj == Vk);
+                branchTarget = immediate;
                 break;
             default:
                 System.out.println("Unknown opcode: " + opcode);

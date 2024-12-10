@@ -13,19 +13,24 @@ public class Main {
         Cache cache = new Cache(4, 16, 2, 10);
 
         // Load data into cache
-        Cache.loadBlockWithData(0, 10);
+//        Cache.loadBlockWithData(0, 10);
         //Cache.loadBlockWithData(4, 20);
 
         // Set initial value of R1 and R2
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
         integerRegisterFile[1] = new Register("R1", 4, new ArrayList<>());
-        integerRegisterFile[2] = new Register("R2", 10, new ArrayList<>());
+//        integerRegisterFile[2] = new Register("F4", 2, new ArrayList<>());
+
+        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
+        floatRegisterFile[4] = new Register("F4", 2, new ArrayList<>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(new Instruction("LD", 0, "R0", "5", "0"));// L.D F0, 0(R1)
-        instructions.add(new Instruction("LD", 0, "R2", "0", "R0"));// L.D F2, 0(R2)
-        //instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
+//        instructions.add(new Instruction("LD", 0, "F6", "0", "0"));// L.D F0, 0(R1)
+        instructions.add(new Instruction("DADDI", 0, "F8", "F8", "2"));
+
+        instructions.add(new Instruction("BNE", 0, "F4", "F0", "0"));
+
 //        instructions.add(new Instruction("DADDI", 0, "R3", "R1", "R2"));
         //instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
 
@@ -39,10 +44,14 @@ public class Main {
         Map<String, Integer> latencies = new HashMap<>();
         latencies.put("L.D", 2);
         latencies.put("MUL.D", 4);
+        latencies.put("DIV.D", 4);
         latencies.put("ADD.D", 5);
+        latencies.put("SUB.D", 5);
         latencies.put("S.D", 2);
         latencies.put("DADDI", 2);
         latencies.put("LD", 2);
+        latencies.put("BNE", 2);
+        latencies.put("BEQ", 2);
 
         // Initialize Reservation Stations
         ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
@@ -56,9 +65,12 @@ public class Main {
         ReservationStation integerLoadRS = new ReservationStation(2, "LoadI");
         ReservationStation integerStoreRS = new ReservationStation(2, "StoreI");
 
+        // Branch
+        ReservationStation branchRS = new ReservationStation(3, "Branch");
+
         // List of reservation stations
         List<ReservationStation> reservationStations = Arrays.asList(
-                addSubRS, mulDivRS, loadRS, storeRS, integerAddSubRS, integerMulDivRS, integerLoadRS, integerStoreRS
+                addSubRS, mulDivRS, loadRS, storeRS, integerAddSubRS, integerMulDivRS, integerLoadRS, integerStoreRS, branchRS
         );
 
         // Initialize Common Data Bus
@@ -78,6 +90,7 @@ public class Main {
         while (true) {
             System.out.println("Cycle: " + cycle);
 
+
             // Write-back stage for floating-point instructions
             for (ReservationStation rs : reservationStations) {
                 rs.writeBack(cdb, registerFile);
@@ -96,42 +109,37 @@ public class Main {
                 rs.removeCompletedEntries();
             }
 
-            // Inside your main simulation loop
+            // Check for branch resolution
+            for (ReservationStation rs : reservationStations) {
+                if (rs.getName().equals("Branch")) {
+                    for (ReservationStationEntry entry : rs.getEntries()) {
+                        if (entry.isExecutionComplete() && !entry.isResultWritten()) {
+                            if (entry.isBranchTaken()) {
+                                pc = entry.getBranchTarget();
+                            }
+                            entry.setResultWritten(true);
+                            break;
+                        }
+                    }
+                }
+            }
 
-
-//// Write Back Stage for Integer Pipeline
-//            integerPipeline.writeBackStage(registerFile);
-//
-//// Memory Stage for Integer Pipeline
-//            integerPipeline.memoryStage(registerFile, cache);
-//
-//// Execute Stage for Integer Pipeline
-//            integerPipeline.executeStage(registerFile);
-//
-//// Decode Stage for Integer Pipeline
-//            integerPipeline.decodeStage(registerFile);
-//
-//// Fetch Stage for Integer Pipeline
-//            integerPipeline.fetchStage();
-
-
+            System.out.println("pc: " + pc);
             // Issue stage
             if (pc < instructions.size()) {
                 Instruction inst = instructions.get(pc);
-//                if (inst.isIntegerInstruction()) {
-//                    // Send integer instructions to integer pipeline
-////                    integerPipeline.fetch(inst);
-//                    pc++;
-//                } else {
-                    // Existing Tomasulo issue logic for floating-point instructions
-                    boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
-                    if (issued) {
-                        pc++;
-                    } else {
-                        System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
-                    }
-//                }
+                // Existing Tomasulo issue logic for floating-point instructions
+                boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
+                if (issued) {
+                    pc++;
+                } else {
+                    System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
+                }
+
             }
+            // else{
+            //     break;
+            // }
 
             registerFile.printStatus();
             System.out.println("Cache Status:");
@@ -198,6 +206,10 @@ public class Main {
             case "S.D":
             case "S.S":
                 rs = getReservationStationByName(reservationStations, "Store");
+                break;
+            case "BNE":
+            case "BEQ":
+                rs = getReservationStationByName(reservationStations, "Branch");
                 break;
             default:
                 System.out.println("Unsupported opcode: " + opcode);
