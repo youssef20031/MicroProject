@@ -17,18 +17,29 @@ public class CommonDataBus {
 
     public void broadcast(List<ReservationStation> reservationStations, RegisterFile registerFile, Map<String, String> registerStatus) {
         for (CDBEntry entry : entries) {
-            // Update register file
-            registerFile.setRegisterValue(entry.getDestination(), entry.getResult());
+            if (entry.getDestination() != null) {
+                // Update register file
+                registerFile.setRegisterValue(entry.getDestination(), entry.getResult());
+                // Clear register status
+                registerStatus.remove(entry.getDestination());
 
-            // Clear register status
-            registerStatus.remove(entry.getDestination());
+                // Update waiting reservation stations
+                for (ReservationStation rs : reservationStations) {
+                    rs.updateEntries(entry);
+                }
 
-            // Update waiting reservation stations
-            for (ReservationStation rs : reservationStations) {
-                rs.updateEntries(entry);
+                System.out.println("Broadcasting result for " + entry.getDestination());
+            }  if (entry.getSrc2() != null) {
+                // Update waiting reservation stations for src2 dependency
+                registerFile.setRegisterValue(entry.getSrc2(), registerFile.getRegisterValue(entry.getSrc2()));
+
+                registerStatus.remove(entry.getSrc2());
+
+                for (ReservationStation rs : reservationStations) {
+                    rs.updateEntries(entry);
+                }
+                System.out.println("Broadcasting src2 completion for " + entry.getSrc2());
             }
-
-            System.out.println("Broadcasting result for " + entry.getDestination());
         }
         entries.clear();
     }

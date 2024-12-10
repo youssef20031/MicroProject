@@ -4,10 +4,14 @@ import com.microproject.microproject.model.*;
 
 import java.util.*;
 
+
 public class Main {
+
+    public static RegisterFile registerFile = new RegisterFile();
+
+
     public static void main(String[] args) {
         // Initialize Register File
-        RegisterFile registerFile = new RegisterFile();
 
         // Construct the cache
         Cache cache = new Cache(8, 256, 2, 10);
@@ -35,7 +39,7 @@ public class Main {
         instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));
-        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "R1"));
+        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "9"));
 //        instructions.add(new Instruction("BNE", 0, "R1", "R2", "2"));
 
 

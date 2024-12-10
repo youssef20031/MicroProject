@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.microproject.microproject.Controller.Main.registerFile;
+
+
 public class ReservationStation {
     private final int capacity;
     private final String name;
@@ -140,7 +143,9 @@ public class ReservationStation {
                 }
             }
         }
-        registerFile.setRegisterQi(destination, this.name);
+        if (!opcode.equals("BNE") && !opcode.equals("BEQ")) {
+            registerFile.setRegisterQi(destination, this.name);
+        }
         entries.add(entry);
         //System.out.println("Issued instruction: " + opcode + " to " + this.name);
 
@@ -159,18 +164,33 @@ public class ReservationStation {
     public void writeBack(CommonDataBus cdb, RegisterFile registerFile) {
         for (ReservationStationEntry entry : entries) {
             if (entry.isExecutionComplete() && !entry.isResultWritten()) {
+                String opcode = entry.getInstruction().getOpcode();
                 String destination = entry.getDestination();
                 double result = entry.getResult();
-                // Write the result to the register
-                registerFile.setRegisterValue(destination, result);
-                // Remove the specific Qi (reservation station name)
-                registerFile.removeQi(destination, this.name);
-                entry.setResultWritten(true);
 
-                // Add entry to Common Data Bus
-                CDBEntry cdbEntry = new CDBEntry(destination, result);
-                cdb.addEntry(cdbEntry);
-                System.out.println("Result written for: " + entry.getInstruction().getOpcode());
+                if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
+                    // For store instructions, broadcast src2 to clear dependencies
+                    String src2 = entry.getInstruction().getSource2();
+                    // Create a CDBEntry with src2
+                    CDBEntry cdbEntry = new CDBEntry(destination, result, src2);
+                    registerFile.removeQi(entry.getInstruction().getSource2(), this.name);
+                    registerFile.removeQi(destination, this.name);
+                    cdb.addEntry(cdbEntry);
+                    System.out.println("Store instruction completed: " + opcode + ". Broadcasting src2: " + src2);
+                } else {
+                    // Write the result to the register
+                    registerFile.setRegisterValue(destination, result);
+                    // Remove the specific Qi (reservation station name)
+                    registerFile.removeQi(destination, this.name);
+
+
+                    // Add entry to Common Data Bus
+                    CDBEntry cdbEntry = new CDBEntry(destination, result);
+                    cdb.addEntry(cdbEntry);
+                    System.out.println("Result written for: " + opcode);
+                }
+
+                entry.setResultWritten(true);
             }
         }
     }
@@ -209,8 +229,8 @@ public class ReservationStation {
                         rsEntry.setVj(entry.getResult());
                         rsEntry.setQj(null);
                     }
-                    if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
-                        rsEntry.setVk(entry.getResult());
+                    if (entry.getSrc2() != null && entry.getSrc2().equals(rsEntry.getInstruction().getSource2())) {
+                        rsEntry.setVk(registerFile.getRegisterValue(entry.getSrc2()));
                         rsEntry.setQk(null);
                     }
                 }
