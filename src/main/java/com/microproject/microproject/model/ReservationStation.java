@@ -8,6 +8,8 @@ import java.util.Map;
 public class ReservationStation {
     private final int capacity;
     private final String name;
+
+
     private final List<ReservationStationEntry> entries;
 
     public ReservationStation(int capacity, String name) {
@@ -16,6 +18,9 @@ public class ReservationStation {
         this.entries = new ArrayList<>();
     }
 
+    public List<ReservationStationEntry> getEntries() {
+        return entries;
+    }
     public String getName() {
         return name;
     }
@@ -75,7 +80,32 @@ public class ReservationStation {
             } else {
                 entry.setVj(registerFile.getRegisterValue(dest));
             }
+        }// Handle Branch instructions
+    else if (opcode.equals("BNE") || opcode.equals("BEQ")) {
+        // destination is the first register, src1 is the second register, src2 is the branch target (offset)
+        // Handle first register dependencies
+        if (destination != null && !destination.isEmpty()) {
+            ArrayList<String> destQi = registerFile.getRegisterQi(destination);
+            if (destQi != null && !destQi.isEmpty()) {
+                entry.addQj(destQi.get(destQi.size() - 1));
+            } else {
+                entry.setVj(registerFile.getRegisterValue(destination));
+            }
         }
+
+        // Handle second register dependencies
+        if (src1 != null && !src1.isEmpty()) {
+            ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
+            if (src1Qi != null && !src1Qi.isEmpty()) {
+                entry.addQk(src1Qi.get(src1Qi.size() - 1));
+            } else {
+                entry.setVk(registerFile.getRegisterValue(src1));
+            }
+        }
+
+        // The branch target (src2) is an immediate value (offset), so store it
+        entry.setImmediate(Integer.parseInt(src2));
+    }
         else{
             // Check Qi for source1 from registerFile
             if (src1 != null && !src1.isEmpty()) {
@@ -151,7 +181,9 @@ public class ReservationStation {
                     "DADDI".equals(rsEntry.getInstruction().getOpcode())||
                     "SUBI".equals(rsEntry.getInstruction().getOpcode())||
                     "DSUBI".equals(rsEntry.getInstruction().getOpcode())||
-                    "SD".equals(rsEntry.getInstruction().getOpcode())) {
+                    "SD".equals(rsEntry.getInstruction().getOpcode())||
+                    "BNE".equals(rsEntry.getInstruction().getOpcode())||
+                    "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
 
                 if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
                     rsEntry.setVj(entry.getResult());
