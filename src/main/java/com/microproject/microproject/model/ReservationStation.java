@@ -21,6 +21,7 @@ public class ReservationStation {
     public List<ReservationStationEntry> getEntries() {
         return entries;
     }
+
     public String getName() {
         return name;
     }
@@ -66,10 +67,19 @@ public class ReservationStation {
             //registerFile.setRegisterQi(dest, this.name);
         } else if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
             // For Store: Compute effective address Vk = base register value + offset
-            double baseValue = registerFile.getRegisterValue(src2);
-            int offset = Integer.parseInt(src1);
-            double effectiveAddress = baseValue + offset;
-            entry.setVk(effectiveAddress);
+            // Check Qi for source2 from registerFile
+            if (src2 != null && !src2.isEmpty()) {
+                ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
+                if (src2Qi != null && !src2Qi.isEmpty()) {
+                    entry.addQk(src2Qi.getLast());
+                } else {
+                    double baseValue = registerFile.getRegisterValue(src2);
+                    int offset = Integer.parseInt(src1);
+                    double effectiveAddress = baseValue + offset;
+                    entry.setVk(effectiveAddress);
+                    registerFile.setRegisterQi(src2, this.name);
+                }
+            }
 
             // Get data to store from the destination register
             if (registerFile.getRegisterQi(dest) != null && !registerFile.getRegisterQi(dest).isEmpty()) {
@@ -78,35 +88,35 @@ public class ReservationStation {
                     entry.addQj(destQi.getLast());
                 }
             } else {
+
                 entry.setVj(registerFile.getRegisterValue(dest));
             }
         }// Handle Branch instructions
-    else if (opcode.equals("BNE") || opcode.equals("BEQ")) {
-        // destination is the first register, src1 is the second register, src2 is the branch target (offset)
-        // Handle first register dependencies
-        if (destination != null && !destination.isEmpty()) {
-            ArrayList<String> destQi = registerFile.getRegisterQi(destination);
-            if (destQi != null && !destQi.isEmpty()) {
-                entry.addQj(destQi.get(destQi.size() - 1));
-            } else {
-                entry.setVj(registerFile.getRegisterValue(destination));
+        else if (opcode.equals("BNE") || opcode.equals("BEQ")) {
+            // destination is the first register, src1 is the second register, src2 is the branch target (offset)
+            // Handle first register dependencies
+            if (destination != null && !destination.isEmpty()) {
+                ArrayList<String> destQi = registerFile.getRegisterQi(destination);
+                if (destQi != null && !destQi.isEmpty()) {
+                    entry.addQj(destQi.get(destQi.size() - 1));
+                } else {
+                    entry.setVj(registerFile.getRegisterValue(destination));
+                }
             }
-        }
 
-        // Handle second register dependencies
-        if (src1 != null && !src1.isEmpty()) {
-            ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
-            if (src1Qi != null && !src1Qi.isEmpty()) {
-                entry.addQk(src1Qi.get(src1Qi.size() - 1));
-            } else {
-                entry.setVk(registerFile.getRegisterValue(src1));
+            // Handle second register dependencies
+            if (src1 != null && !src1.isEmpty()) {
+                ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
+                if (src1Qi != null && !src1Qi.isEmpty()) {
+                    entry.addQk(src1Qi.get(src1Qi.size() - 1));
+                } else {
+                    entry.setVk(registerFile.getRegisterValue(src1));
+                }
             }
-        }
 
-        // The branch target (src2) is an immediate value (offset), so store it
-        entry.setImmediate(Integer.parseInt(src2));
-    }
-        else{
+            // The branch target (src2) is an immediate value (offset), so store it
+            entry.setImmediate(Integer.parseInt(src2));
+        } else {
             // Check Qi for source1 from registerFile
             if (src1 != null && !src1.isEmpty()) {
                 ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
@@ -123,7 +133,7 @@ public class ReservationStation {
                 if (src2Qi != null && !src2Qi.isEmpty()) {
                     entry.addQk(src2Qi.getLast());
                 } else {
-                    if(src2.charAt(0) != 'F' && src2.charAt(0) != 'R')
+                    if (src2.charAt(0) != 'F' && src2.charAt(0) != 'R')
                         entry.setVk(Integer.parseInt(src2));
                     else
                         entry.setVk(registerFile.getRegisterValue(src2));
@@ -173,16 +183,16 @@ public class ReservationStation {
                     "DIV.D".equals(rsEntry.getInstruction().getOpcode()) ||
                     "L.D".equals(rsEntry.getInstruction().getOpcode()) ||
                     "L.S".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "S.D".equals(rsEntry.getInstruction().getOpcode())||
-                    "S.S".equals(rsEntry.getInstruction().getOpcode())||
-                    "LD".equals(rsEntry.getInstruction().getOpcode())||
-                    "LW".equals(rsEntry.getInstruction().getOpcode())||
-                    "SW".equals(rsEntry.getInstruction().getOpcode())||
-                    "DADDI".equals(rsEntry.getInstruction().getOpcode())||
-                    "SUBI".equals(rsEntry.getInstruction().getOpcode())||
-                    "DSUBI".equals(rsEntry.getInstruction().getOpcode())||
-                    "SD".equals(rsEntry.getInstruction().getOpcode())||
-                    "BNE".equals(rsEntry.getInstruction().getOpcode())||
+                    "S.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "LD".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "LW".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "SW".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "DADDI".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "SUBI".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "DSUBI".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "SD".equals(rsEntry.getInstruction().getOpcode()) ||
+                    "BNE".equals(rsEntry.getInstruction().getOpcode()) ||
                     "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
 
                 if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
@@ -193,12 +203,16 @@ public class ReservationStation {
                     rsEntry.setVk(entry.getResult());
                     rsEntry.setQk(null);
                 }
-                if("S.D".equals(rsEntry.getInstruction().getOpcode())){
+                if ("S.D".equals(rsEntry.getInstruction().getOpcode())) {
 
-                        if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
-                            rsEntry.setVj(entry.getResult());
-                            rsEntry.setQj(null);
-                        }
+                    if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                        rsEntry.setVj(entry.getResult());
+                        rsEntry.setQj(null);
+                    }
+                    if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
+                        rsEntry.setVk(entry.getResult());
+                        rsEntry.setQk(null);
+                    }
                 }
             }
         }

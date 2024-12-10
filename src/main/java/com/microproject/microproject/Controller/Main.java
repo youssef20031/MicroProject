@@ -29,13 +29,13 @@ public class Main {
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
 
-        instructions.add(new Instruction("DADDI", 0, "R1", "R1", "24"));
+        instructions.add(new Instruction("DADDI", 0, "R1", "R1", "25"));
         instructions.add(new Instruction("DADDI", 0, "R2", "R2", "0"));
 
         instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));
-        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "8"));
+        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "R1"));
 //        instructions.add(new Instruction("BNE", 0, "R1", "R2", "2"));
 
 
