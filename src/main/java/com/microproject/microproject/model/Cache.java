@@ -1,6 +1,11 @@
 // Java
 package com.microproject.microproject.model;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 public class Cache {
     private static int blockSize;
     private static int cacheSize;
@@ -60,10 +65,36 @@ public class Cache {
         int cacheIndex = blockAddress % cacheSize;
         CacheBlock cacheBlock = cache[cacheIndex];
 
-
-        // Cache hit
+        if (cacheBlock == null || cacheBlock.getAddress() != blockAddress) {
+            // Cache miss
+            System.out.println("Cache miss at address: " + address);
+            // Load data from memory
+            double data = loadDataFromMemory(address);
+            // Create a new CacheBlock and put it in the cache
+            cacheBlock = new CacheBlock(blockAddress, data);
+            cache[cacheIndex] = cacheBlock;
+        } else {
+            // Cache hit
+            System.out.println("Cache hit at address: " + address);
+        }
         return cacheBlock.getData();
+    }
 
+    private static double loadDataFromMemory(int address) {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\Yusuf\\Documents\\Sem 7\\MicroProject\\src\\main\\java\\com\\microproject\\microproject\\text\\address.txt"));
+            for (String line : lines) {
+                String[] parts = line.split(",");
+                int fileAddress = Integer.parseInt(parts[0].trim());
+                double value = Double.parseDouble(parts[1].trim());
+                if (fileAddress == address) {
+                    return value;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        throw new IllegalArgumentException("Address not found in memory: " + address);
     }
 
     // Write data to cache

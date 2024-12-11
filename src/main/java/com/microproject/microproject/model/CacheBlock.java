@@ -12,6 +12,13 @@ public class CacheBlock {
     public CacheBlock() {
     }
 
+    public CacheBlock(int address, double data) {
+        this.address = address;
+        this.data = data;
+        this.valid = true;
+        this.dirty = false;
+    }
+    
     // Parameterized constructor
     public CacheBlock(int address) {
         this.address = address;

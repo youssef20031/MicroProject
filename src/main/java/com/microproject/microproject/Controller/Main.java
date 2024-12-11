@@ -24,7 +24,7 @@ public class Main {
 //        integerRegisterFile[2] = new Register("F4", 2, new ArrayList<>());
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-//        floatRegisterFile[4] = new Register("F4", 2, new ArrayList<>());
+        floatRegisterFile[2] = new Register("F2", 2, new ArrayList<>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
@@ -36,7 +36,7 @@ public class Main {
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));
         instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "8"));
-        instructions.add(new Instruction("BNE", 0, "R1", "R2", "2"));
+//        instructions.add(new Instruction("BNE", 0, "R1", "R2", "2"));
 
 
         // Latency for each operation
