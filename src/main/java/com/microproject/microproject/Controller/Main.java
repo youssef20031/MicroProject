@@ -10,36 +10,35 @@ public class Main {
         RegisterFile registerFile = new RegisterFile();
 
         // Construct the cache
-        Cache cache = new Cache(4, 16, 2, 10);
+        Cache cache = new Cache(8, 256, 2, 10);
 
         // Load data into cache
 //        Cache.loadBlockWithData(0, 10);
-        //Cache.loadBlockWithData(4, 20);
+//        Cache.loadBlockWithData(8, 20);
+//        Cache.loadBlockWithData(16, 20);
+//        Cache.loadBlockWithData(24, 20);
 
         // Set initial value of R1 and R2
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        integerRegisterFile[1] = new Register("R1", 4, new ArrayList<>());
+//        integerRegisterFile[1] = new Register("R1", 4, new ArrayList<>());
 //        integerRegisterFile[2] = new Register("F4", 2, new ArrayList<>());
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        floatRegisterFile[4] = new Register("F4", 2, new ArrayList<>());
+//        floatRegisterFile[4] = new Register("F4", 2, new ArrayList<>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
-//        instructions.add(new Instruction("LD", 0, "F6", "0", "0"));// L.D F0, 0(R1)
-        instructions.add(new Instruction("DADDI", 0, "F8", "F8", "2"));
 
-        instructions.add(new Instruction("BNE", 0, "F4", "F0", "0"));
+        instructions.add(new Instruction("DADDI", 0, "R1", "R1", "24"));
+        instructions.add(new Instruction("DADDI", 0, "R2", "R2", "0"));
 
-//        instructions.add(new Instruction("DADDI", 0, "R3", "R1", "R2"));
-        //instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));     // S.D F4, 0(R1)
+        instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));
+        instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
+        instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));
+        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "8"));
+        instructions.add(new Instruction("BNE", 0, "R1", "R2", "2"));
 
-        // Add more instructions as needed
-        // instructions.add(new Instruction("ADDI", 0, "R4", "R3", "10"));
-        // instructions.add(new Instruction("SUB", 0, "R5", "R4", "R1"));
-        // instructions.add(new Instruction("SD", 0, "R1", "0", "0"));
-        //instructions.add(new Instruction("LW", 0, "R6", "0", "R1"));
-        //instructions.add(new Instruction("SW", 0, "R6", "0", "0"));
+
         // Latency for each operation
         Map<String, Integer> latencies = new HashMap<>();
         latencies.put("L.D", 2);
@@ -52,6 +51,7 @@ public class Main {
         latencies.put("LD", 2);
         latencies.put("BNE", 2);
         latencies.put("BEQ", 2);
+        latencies.put("DSUBI", 2);
 
         // Initialize Reservation Stations
         ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
@@ -108,7 +108,7 @@ public class Main {
             for (ReservationStation rs : reservationStations) {
                 rs.removeCompletedEntries();
             }
-
+            boolean branchTaken = false;
             // Check for branch resolution
             for (ReservationStation rs : reservationStations) {
                 if (rs.getName().equals("Branch")) {
@@ -116,17 +116,20 @@ public class Main {
                         if (entry.isExecutionComplete() && !entry.isResultWritten()) {
                             if (entry.isBranchTaken()) {
                                 pc = entry.getBranchTarget();
+                                branchTaken = true;
                             }
                             entry.setResultWritten(true);
                             break;
                         }
                     }
+                    System.out.print("Branch RS: ");
+                    rs.printStatus();
                 }
             }
 
             System.out.println("pc: " + pc);
             // Issue stage
-            if (pc < instructions.size()) {
+            if (!branchTaken && pc < instructions.size()) {
                 Instruction inst = instructions.get(pc);
                 // Existing Tomasulo issue logic for floating-point instructions
                 boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
@@ -180,6 +183,7 @@ public class Main {
         switch (opcode) {
             case "DADDI":
             case "SUBI":
+            case "DSUBI":
             case "ADDI":
                 rs = getReservationStationByName(reservationStations, "Add/SubI");
                 break;
