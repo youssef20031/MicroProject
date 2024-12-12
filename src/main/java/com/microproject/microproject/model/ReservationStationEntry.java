@@ -178,6 +178,7 @@ public class ReservationStationEntry {
         if (executionStarted && !executionComplete) {
             if (remainingCycles > 0) {
                 remainingCycles--;
+                System.out.println("Instruction " + instruction.getOpcode() + " executing. Remaining cycles: " + remainingCycles);
             }
             if (remainingCycles == 0) {
                 computeResult(registerFile);
@@ -216,7 +217,8 @@ public class ReservationStationEntry {
             case "L.D":
             case "L.S":
                 // Load data from cache using the effective address in Vk
-                int loadAddress = (int) Vk;
+//                int loadAddress = (int) Vk;
+                int loadAddress = this.getInstruction().getEffectiveAddress();
                 Cache.accessData(loadAddress); // Simulate cache latency
                 result = Cache.readData(loadAddress);
                 break;

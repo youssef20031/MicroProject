@@ -63,6 +63,7 @@ public class ReservationStation {
                     int offset = Integer.parseInt(src1);
                     double effectiveAddress = baseValue + offset;
                     entry.setVk(effectiveAddress);
+                    entry.getInstruction().setEffectiveAddress((int) effectiveAddress);
                 }
             }
 
@@ -221,11 +222,25 @@ public class ReservationStation {
                     rsEntry.setVj(entry.getResult());
                     rsEntry.setQj(null);
                 }
+                if("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())){
+                    if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                        rsEntry.setVj(entry.getResult());
+                        rsEntry.setQj(null);
+                    }
+                }
+
+                if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
+                    rsEntry.setVj(entry.getResult());
+                    rsEntry.setQj(null);
+                }
                 if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
                     rsEntry.setVk(entry.getResult());
                     rsEntry.setQk(null);
                 }
-                if ("S.D".equals(rsEntry.getInstruction().getOpcode())) {
+                if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                        "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
+                        "SD".equals(rsEntry.getInstruction().getOpcode()) ||
+                        "SW".equals(rsEntry.getInstruction().getOpcode())) {
 
                     if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
                         rsEntry.setVj(entry.getResult());

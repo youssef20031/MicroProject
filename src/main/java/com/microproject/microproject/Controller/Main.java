@@ -23,23 +23,13 @@ public class Main {
 //        Cache.loadBlockWithData(24, 20);
 
         // Set initial value of R1 and R2
-        Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        integerRegisterFile[1] = new Register("R1", 25, new ArrayList<>());
-//        integerRegisterFile[2] = new Register("F4", 2, new ArrayList<>());
 
-        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        floatRegisterFile[2] = new Register("F2", 1.33, new ArrayList<>());
 
         // Prepare instructions
-        List<Instruction> instructions = new ArrayList<>();
+//        List<Instruction> instructions = new ArrayList<>();
 
 //        instructions.add(new Instruction("DADDI", 0, "R2", "R2", "0"));
 //
-        instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));
-        instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
-        instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));
-        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "8"));
-//        instructions.add(new Instruction("BNE", 0, "R1", "R2", "2"));
 
 
         // Latency for each operation
@@ -73,9 +63,9 @@ public class Main {
 
         // List of reservation stations
         List<ReservationStation> reservationStations = Arrays.asList(
-                addSubRS, mulDivRS, loadRS, storeRS, integerAddSubRS, integerMulDivRS, integerLoadRS, integerStoreRS, branchRS
+                branchRS, integerAddSubRS, addSubRS, mulDivRS, loadRS, storeRS, integerMulDivRS, integerLoadRS, integerStoreRS
         );
-
+//
         // Initialize Common Data Bus
         CommonDataBus cdb = new CommonDataBus();
 
@@ -86,8 +76,27 @@ public class Main {
         int cycle = 1;
         int pc = 0;  // Program counter
 
-        // Initialize IntegerPipeline
-//        IntegerPipeline integerPipeline = new IntegerPipeline();
+
+        Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
+//        integerRegisterFile[1] = new Register("R1", 25, new ArrayList<>());
+//        integerRegisterFile[2] = new Register("R2", 1, new ArrayList<>());
+
+
+        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
+        floatRegisterFile[2] = new Register("F2", 2, new ArrayList<>());
+
+
+        List<String[]> instructions = new ArrayList<>();
+        instructions.add(new String[]{"DADDI", "R1", "R1", "24"});
+        instructions.add(new String[]{"DADDI", "R2", "R2", "0"});
+
+        instructions.add(new String[]{"L.D", "F0", "0", "R1"});
+        instructions.add(new String[]{"MUL.D", "F4", "F0", "F2"});
+        instructions.add(new String[]{"S.D", "F4", "0", "R1"});
+        instructions.add(new String[]{"DSUBI", "R1", "R1", "8"});
+        instructions.add(new String[]{"BNE", "R1", "R2", "2"}); // Replace "0" with the actual address of the L.D instruction if required.
+
+
 
         // Main simulation loop
         while (true) {
@@ -133,7 +142,9 @@ public class Main {
             System.out.println("pc: " + pc);
             // Issue stage
             if (!branchTaken && pc < instructions.size()) {
-                Instruction inst = instructions.get(pc);
+                // Instruction inst = instructions.get(pc);
+                String[] data = instructions.get(pc);
+                Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3]);
                 // Existing Tomasulo issue logic for floating-point instructions
                 boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
                 if (issued) {
@@ -143,9 +154,6 @@ public class Main {
                 }
 
             }
-            // else{
-            //     break;
-            // }
 
             registerFile.printStatus();
             System.out.println("Cache Status:");
@@ -159,10 +167,6 @@ public class Main {
                     break;
                 }
             }
-//            // Also check if integer pipeline is empty
-//            if (!integerPipeline.isEmpty()) {
-//                done = false;
-//            }
 
             if (done) {
                 break;
