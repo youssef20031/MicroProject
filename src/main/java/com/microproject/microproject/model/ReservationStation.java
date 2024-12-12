@@ -175,8 +175,10 @@ public class ReservationStation {
                 if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
                     // For store instructions, broadcast src2 to clear dependencies
                     String src2 = entry.getInstruction().getSource2();
+                    entry.setResultWritten(true);
                     // Create a CDBEntry with src2
                     CDBEntry cdbEntry = new CDBEntry(entry.getInstruction(), destination, result, src2, entry.getInstruction().getInstructionNumber());
+                    
                     ArrayList<String> arrayList = new ArrayList<>();
                     arrayList.add(this.name);
                     arrayList.add(entry.getInstruction().getInstructionNumber() + "");
@@ -209,16 +211,19 @@ public class ReservationStation {
 
     public void updateEntries(CDBEntry entry) {
         for (ReservationStationEntry rsEntry : entries) {
-            for(int i = 0; i < rsEntry.getQj().size();i++){
-                if(entry.getInstructionNumber() == rsEntry.getQj().get(i).instructionNumber) {
-                    if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
-                        rsEntry.setVj(entry.getResult());
-                        rsEntry.setQj(null);
-                    }
-                    if ("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
-                        if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+            if(rsEntry.getQj() != null && !rsEntry.getQj().isEmpty()) {
+                for (int i = 0; i < rsEntry.getQj().size(); i++) {
+                    if (entry.getInstructionNumber() == rsEntry.getQj().get(i).instructionNumber) {
+                        if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
                             rsEntry.setVj(entry.getResult());
-                            rsEntry.setQj(null);                        }
+                            rsEntry.setQj(new ArrayList<>());
+                        }
+                        if ("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
+                            if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                                rsEntry.setVj(entry.getResult());
+                                rsEntry.setQj(new ArrayList<>());
+                            }
+                        }
                     }
                 }
             }
@@ -246,11 +251,11 @@ public class ReservationStation {
 
                         if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
                             rsEntry.setVj(entry.getResult());
-                            rsEntry.setQj(null);
+                            rsEntry.setQj(new ArrayList<>());
                         }
                         if (entry.getSrc2() != null && entry.getSrc2().equals(rsEntry.getInstruction().getSource2())) {
                             rsEntry.setVk(registerFile.getRegisterValue(entry.getSrc2()));
-                            rsEntry.setQk(null);
+                            rsEntry.setQk(new ArrayList<>());
                         }
                     }
                 }

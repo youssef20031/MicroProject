@@ -28,6 +28,8 @@ public class ReservationStationEntry {
         this.latency = latency;
         this.remainingCycles = latency;
         this.destination = instruction.getDestination();
+        this.Qj = new ArrayList<>();
+        this.Qk = new ArrayList<>();
     }
 
     public int getImmediate() {
