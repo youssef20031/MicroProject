@@ -9,7 +9,7 @@ public class Main {
 
     public static RegisterFile registerFile = new RegisterFile();
 
-
+    
     public static void main(String[] args) {
         // Initialize Register File
 
