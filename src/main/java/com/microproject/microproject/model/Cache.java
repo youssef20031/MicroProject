@@ -4,6 +4,7 @@ package com.microproject.microproject.model;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Cache {
@@ -145,6 +146,17 @@ public class Cache {
         CacheBlock cacheBlock = new CacheBlock(blockAddress);
         cache[cacheIndex] = cacheBlock;
     }
+
+    public List<CacheEntry> getEntries() {
+        List<CacheEntry> entries = new ArrayList<>();
+        for (CacheBlock block : cache) {
+            if (block!= null && block.isValid()) {
+                entries.add(new CacheEntry(block.getAddress(), block.getData()));
+            }
+        }
+        return entries;
+    }
+
 
     public String toString() {
         for (int i = 0; i < cacheSize; i++) {

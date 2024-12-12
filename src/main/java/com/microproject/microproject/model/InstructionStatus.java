@@ -4,17 +4,17 @@ import javafx.beans.property.*;
 
 public class InstructionStatus {
     private final SimpleStringProperty instruction;
-    private final SimpleIntegerProperty issueCycle;
-    private final SimpleIntegerProperty startExecutionCycle;
-    private final SimpleIntegerProperty endExecutionCycle;
-    private final SimpleIntegerProperty writeBackCycle;
+    private final SimpleStringProperty opcode;
+    private final SimpleStringProperty destination;
+    private final SimpleStringProperty source1;
+    private final SimpleStringProperty source2;
 
-    public InstructionStatus(String instruction, int issueCycle, int startExecutionCycle, int endExecutionCycle, int writeBackCycle) {
-        this.instruction = new SimpleStringProperty(instruction);
-        this.issueCycle = new SimpleIntegerProperty(issueCycle);
-        this.startExecutionCycle = new SimpleIntegerProperty(startExecutionCycle);
-        this.endExecutionCycle = new SimpleIntegerProperty(endExecutionCycle);
-        this.writeBackCycle = new SimpleIntegerProperty(writeBackCycle);
+    public InstructionStatus(String opcode, String source1, String source2, String destination) {
+        this.instruction = new SimpleStringProperty(opcode);
+        this.opcode = new SimpleStringProperty(opcode);
+        this.destination = new SimpleStringProperty(destination);
+        this.source1 = new SimpleStringProperty(source1);
+        this.source2 = new SimpleStringProperty(source2);
     }
 
     public String getInstruction() {
@@ -25,35 +25,34 @@ public class InstructionStatus {
         this.instruction.set(instruction);
     }
 
-    public int getIssueCycle() {
-        return issueCycle.get();
+    public String getOpcode() {
+        return opcode.get();
     }
 
-    public void setIssueCycle(int issueCycle) {
-        this.issueCycle.set(issueCycle);
+    public void setOpcode(String opcode) {
+        this.opcode.set(opcode);
     }
 
-    public int getStartExecutionCycle() {
-        return startExecutionCycle.get();
+    public String getDestination() {
+        return destination.get();
     }
 
-    public void setStartExecutionCycle(int startExecutionCycle) {
-        this.startExecutionCycle.set(startExecutionCycle);
+    public void setDestination(String destination) {
+        this.destination.set(destination);
     }
 
-    public int getEndExecutionCycle() {
-        return endExecutionCycle.get();
+    public String getSource1() {
+        return source1.get();
     }
 
-    public void setEndExecutionCycle(int endExecutionCycle) {
-        this.endExecutionCycle.set(endExecutionCycle);
+    public void setSource1(String source1) {
+        this.source1.set(source1);
     }
 
-    public int getWriteBackCycle() {
-        return writeBackCycle.get();
+    public String getSource2() {
+        return source2.get();
     }
-
-    public void setWriteBackCycle(int writeBackCycle) {
-        this.writeBackCycle.set(writeBackCycle);
+    public void setSource2(String source2) {
+        this.source2.set(source2);
     }
 }

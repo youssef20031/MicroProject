@@ -11,7 +11,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.microproject.microproject.MainController">
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.microproject.microproject.MainController">
     <top>
         <MenuBar>
             <menus>
@@ -30,16 +31,16 @@
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
             <children>
-                <Label text="Instruction Queue"/>
                 <TableView fx:id="instructionQueueTable" prefWidth="600" prefHeight="150">
                     <columns>
                         <TableColumn fx:id="instructionColumn" text="Instruction"/>
-                        <TableColumn fx:id="issueCycleColumn" text="Issue"/>
-                        <TableColumn fx:id="startExecCycleColumn" text="Start Exec"/>
-                        <TableColumn fx:id="endExecCycleColumn" text="End Exec"/>
-                        <TableColumn fx:id="writeBackCycleColumn" text="Write Back"/>
+                        <TableColumn fx:id="opcodeColumn" text="Opcode"/>
+                        <TableColumn fx:id="source1Column" text="Source 1"/>
+                        <TableColumn fx:id="source2Column" text="Source 2"/>
+                        <TableColumn fx:id="destinationColumn" text="Destination"/>
                     </columns>
                 </TableView>
+
                 <Label text="Reservation Stations"/>
                 <TableView fx:id="reservationStationsTable" prefWidth="600" prefHeight="200">
                     <columns>
@@ -51,6 +52,22 @@
                         <TableColumn fx:id="rsQjColumn" text="Qj"/>
                         <TableColumn fx:id="rsQkColumn" text="Qk"/>
                         <TableColumn fx:id="rsDestColumn" text="Dest"/>
+                    </columns>
+                </TableView>
+
+                <!-- New Section for Register File -->
+                <Label text="Register File"/>
+                <TableView fx:id="registerFileTable" prefWidth="600" prefHeight="150">
+                    <columns>
+                        <TableColumn fx:id="regNameColumn" text="Register"/>
+                        <TableColumn fx:id="regValueColumn" text="Value"/>
+                    </columns>
+                </TableView>
+                <Label text="Cache Contents"/>
+                <TableView fx:id="cacheTable" prefWidth="600" prefHeight="150">
+                    <columns>
+                        <TableColumn fx:id="cacheAddressColumn" text="Address"/>
+                        <TableColumn fx:id="cacheDataColumn" text="Data"/>
                     </columns>
                 </TableView>
                 <Button text="Next Cycle" onAction="#handleNextCycle"/>

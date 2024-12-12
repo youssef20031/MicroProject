@@ -7,6 +7,9 @@ import com.microproject.microproject.model.Cache;
 import static com.microproject.microproject.model.ReadAddressFromText.readAddresses;
 
 public class ReservationStationEntry {
+    private String reservationStationName; // New property
+    private boolean busy;                   // New property
+    private String operation;
     private Instruction instruction;
     private int latency;
     private ArrayList<String> Qk;
@@ -23,8 +26,10 @@ public class ReservationStationEntry {
     private int immediate;
 
 
-    public ReservationStationEntry(Instruction instruction, int latency) {
+    public ReservationStationEntry(String reservationStationName, Instruction instruction, int latency) {
         this.instruction = instruction;
+        this.reservationStationName = reservationStationName;
+        this.busy = true;
         this.latency = latency;
         this.remainingCycles = latency;
         this.destination = instruction.getDestination();
@@ -270,4 +275,28 @@ public class ReservationStationEntry {
     }
 
 
+    // Getter for reservationStationName
+    public String getReservationStationName() {
+        return reservationStationName;
+    }
+
+    // Getter for busy
+    public boolean isBusy() {
+        return busy;
+    }
+
+    // Setter for busy
+    public void setBusy(boolean busy) {
+        this.busy = busy;
+    }
+
+    // Getter for operation
+    public String getOperation() {
+        return operation;
+    }
+
+
+    public void setOperation(String opcode) {
+        this.operation = opcode;
+    }
 }

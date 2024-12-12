@@ -39,12 +39,13 @@ public class ReservationStation {
 
     public void issue(Instruction inst, RegisterFile registerFile, Map<String, String> registerStatus, int latency) {
         // Create a new entry
-        ReservationStationEntry entry = new ReservationStationEntry(inst, latency);
+        ReservationStationEntry entry = new ReservationStationEntry(this.name,inst, latency);
 
         // Set the actual destination register name
         String opcode = inst.getOpcode();
         String destination = inst.getDestination();
         entry.setDestination(destination);
+        entry.setOperation(inst.getOpcode());
 
         // Get source registers
         String src1 = inst.getSource1();

@@ -1,6 +1,8 @@
 package com.microproject.microproject;
 
+import com.microproject.microproject.model.CacheEntry;
 import com.microproject.microproject.model.InstructionStatus;
+import com.microproject.microproject.model.RegisterStatus;
 import com.microproject.microproject.model.ReservationStationEntry;
 import com.microproject.microproject.simulator.TomasuloSimulator;
 import javafx.fxml.FXML;
@@ -20,17 +22,17 @@ public class MainController {
     private TableColumn<InstructionStatus, String> instructionColumn;
 
     @FXML
-    private TableColumn<InstructionStatus, Integer> issueCycleColumn;
+    private TableColumn<InstructionStatus, String> opcodeColumn;
 
     @FXML
-    private TableColumn<InstructionStatus, Integer> startExecCycleColumn;
+    private TableColumn<InstructionStatus, String> destinationColumn;
 
     @FXML
-    private TableColumn<InstructionStatus, Integer> endExecCycleColumn;
+    private TableColumn<InstructionStatus, String> source1Column;
 
     @FXML
-    private TableColumn<InstructionStatus, Integer> writeBackCycleColumn;
-
+    private TableColumn<InstructionStatus, String> source2Column;
+    
     @FXML
     private TableView<ReservationStationEntry> reservationStationsTable;
 
@@ -60,6 +62,28 @@ public class MainController {
 
     private ObservableList<InstructionStatus> instructionStatusList;
     private ObservableList<ReservationStationEntry> reservationStationEntries;
+    private ObservableList<RegisterStatus> registerStatusList;
+
+    @FXML
+    private TableView<RegisterStatus> registerFileTable;
+
+    @FXML
+    private TableColumn<RegisterStatus, String> regNameColumn;
+
+    @FXML
+    private TableColumn<RegisterStatus, String> regValueColumn;
+
+    @FXML
+    private TableView<CacheEntry> cacheTable;
+
+    @FXML
+    private TableColumn<CacheEntry, Integer> cacheAddressColumn;
+
+    @FXML
+    private TableColumn<CacheEntry, Double> cacheDataColumn;
+
+    private ObservableList<CacheEntry> cacheEntries;
+
 
     private TomasuloSimulator simulator;
 
@@ -67,15 +91,19 @@ public class MainController {
     private void initialize() {
         instructionStatusList = FXCollections.observableArrayList();
         reservationStationEntries = FXCollections.observableArrayList();
+        registerStatusList = FXCollections.observableArrayList(); // Initialize ObservableList
 
         // Initialize Instruction Queue Table Columns
         instructionColumn.setCellValueFactory(new PropertyValueFactory<>("instruction"));
-        issueCycleColumn.setCellValueFactory(new PropertyValueFactory<>("issueCycle"));
-        startExecCycleColumn.setCellValueFactory(new PropertyValueFactory<>("startExecutionCycle"));
-        endExecCycleColumn.setCellValueFactory(new PropertyValueFactory<>("endExecutionCycle"));
-        writeBackCycleColumn.setCellValueFactory(new PropertyValueFactory<>("writeBackCycle"));
+        opcodeColumn.setCellValueFactory(new PropertyValueFactory<>("opcode"));
+        source1Column.setCellValueFactory(new PropertyValueFactory<>("source1"));
+        source2Column.setCellValueFactory(new PropertyValueFactory<>("source2"));
+        destinationColumn.setCellValueFactory(new PropertyValueFactory<>("destination"));
 
         instructionQueueTable.setItems(instructionStatusList);
+        instructionStatusList.add(new InstructionStatus("LOAD", "LW", "R1", "R2"));
+        instructionStatusList.add(new InstructionStatus("ADD", "ADD.D", "R3", "R4"));
+
 
         // Initialize Reservation Stations Table Columns
         rsNameColumn.setCellValueFactory(new PropertyValueFactory<>("reservationStationName"));
@@ -88,6 +116,17 @@ public class MainController {
         rsDestColumn.setCellValueFactory(new PropertyValueFactory<>("destination"));
 
         reservationStationsTable.setItems(reservationStationEntries);
+
+        regNameColumn.setCellValueFactory(new PropertyValueFactory<>("registerName"));
+        regValueColumn.setCellValueFactory(new PropertyValueFactory<>("registerValue"));
+
+        registerFileTable.setItems(registerStatusList); // Bind ObservableList to TableView
+
+        cacheEntries = FXCollections.observableArrayList();
+        cacheAddressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+        cacheDataColumn.setCellValueFactory(new PropertyValueFactory<>("data"));
+        cacheTable.setItems(cacheEntries);
+
 
         simulator = new TomasuloSimulator();
 
@@ -127,5 +166,20 @@ public class MainController {
 
         reservationStationEntries.clear();
         reservationStationEntries.addAll(simulator.getReservationStationEntries());
+
+        reservationStationEntries.clear();
+        reservationStationEntries.addAll(simulator.getReservationStationEntries());
+
+        updateRegisterFileUI();
+
+        updateCacheUI();
+    }
+    private void updateRegisterFileUI() {
+        registerStatusList.clear();
+        registerStatusList.addAll(simulator.getRegisterStatuses());
+    }
+    private void updateCacheUI() {
+        cacheEntries.clear();
+        cacheEntries.addAll(simulator.getCacheEntries());
     }
 }
