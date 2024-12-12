@@ -1,5 +1,7 @@
 package com.microproject.microproject.model;
 
+import static com.microproject.microproject.Controller.Main.numberOfInstructions;
+
 public class Instruction {
     private String opcode;
     private int latency;
@@ -12,6 +14,7 @@ public class Instruction {
     private double dataToStore;
     private int effectiveAddress;
     private double LoadedData;
+    private int instructionNumber = numberOfInstructions;
 
     // Default constructor
     public Instruction() {
@@ -24,6 +27,10 @@ public class Instruction {
         this.destination = destination;
         this.source1 = source1;
         this.source2 = source2;
+    }
+
+    public int getInstructionNumber() {
+        return instructionNumber;
     }
 
     public int getLatency() {

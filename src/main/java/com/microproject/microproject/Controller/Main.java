@@ -8,7 +8,7 @@ import java.util.*;
 public class Main {
 
     public static RegisterFile registerFile = new RegisterFile();
-
+    public static int numberOfInstructions = 0;
     
     public static void main(String[] args) {
         // Initialize Register File
@@ -144,6 +144,7 @@ public class Main {
             if (!branchTaken && pc < instructions.size()) {
                 // Instruction inst = instructions.get(pc);
                 String[] data = instructions.get(pc);
+                numberOfInstructions++;
                 Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3]);
                 // Existing Tomasulo issue logic for floating-point instructions
                 boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
