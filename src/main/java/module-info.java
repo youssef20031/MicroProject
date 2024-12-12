@@ -11,4 +11,6 @@ module com.microproject.microproject {
     exports com.microproject.microproject;
     exports com.microproject.microproject.model;
     opens com.microproject.microproject.model to javafx.fxml;
+    exports com.microproject.microproject.simulator;
+    opens com.microproject.microproject.simulator to javafx.fxml;
 }
