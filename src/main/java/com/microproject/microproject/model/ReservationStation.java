@@ -73,6 +73,7 @@ public class ReservationStation {
             // Check Qi for source2 from registerFile
             if (src2 != null && !src2.isEmpty()) {
                 ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
+                System.out.println("src2Qi: " + src2Qi);
                 if (src2Qi != null && !src2Qi.isEmpty()) {
                     entry.addQk(src2Qi.getLast());
                 } else {
@@ -80,7 +81,7 @@ public class ReservationStation {
                     int offset = Integer.parseInt(src1);
                     double effectiveAddress = baseValue + offset;
                     entry.setVk(effectiveAddress);
-                    registerFile.setRegisterQi(src2, this.name);
+//                    registerFile.setRegisterQi(src2, this.name);
                 }
             }
 
@@ -91,7 +92,6 @@ public class ReservationStation {
                     entry.addQj(destQi.getLast());
                 }
             } else {
-
                 entry.setVj(registerFile.getRegisterValue(dest));
             }
         }// Handle Branch instructions
@@ -143,7 +143,7 @@ public class ReservationStation {
                 }
             }
         }
-        if (!opcode.equals("BNE") && !opcode.equals("BEQ")) {
+        if (!opcode.equals("BNE") && !opcode.equals("BEQ") && !opcode.equals("S.D") && !opcode.equals("S.S") && !opcode.equals("SD") && !opcode.equals("SW")) {
             registerFile.setRegisterQi(destination, this.name);
         }
         entries.add(entry);
@@ -193,6 +193,8 @@ public class ReservationStation {
                 entry.setResultWritten(true);
             }
         }
+        removeCompletedEntries();
+
     }
 
     public void updateEntries(CDBEntry entry) {

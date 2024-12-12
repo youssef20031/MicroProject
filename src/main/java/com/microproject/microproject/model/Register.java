@@ -48,12 +48,16 @@ public class Register {
     }
     // Register.java
     public void removeQi(String Qi) {
-        if (this.Qi != null && !this.Qi.isEmpty()) {
+        if (this.Qi != null && Qi != null) {
             this.Qi.remove(Qi);
         }
     }
     public void addQi(String Qi) {
-        this.Qi.add(Qi);
+        if(this.Qi == null) {
+            this.Qi = new ArrayList<>();
+        }
+        if(Qi != null)
+            this.Qi.add(Qi);
     }
     public double getValue() {
         return value;

@@ -24,22 +24,21 @@ public class Main {
 
         // Set initial value of R1 and R2
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-//        integerRegisterFile[1] = new Register("R1", 4, new ArrayList<>());
+        integerRegisterFile[1] = new Register("R1", 25, new ArrayList<>());
 //        integerRegisterFile[2] = new Register("F4", 2, new ArrayList<>());
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        floatRegisterFile[2] = new Register("F2", 2, new ArrayList<>());
+        floatRegisterFile[2] = new Register("F2", 1.33, new ArrayList<>());
 
         // Prepare instructions
         List<Instruction> instructions = new ArrayList<>();
 
-        instructions.add(new Instruction("DADDI", 0, "R1", "R1", "25"));
-        instructions.add(new Instruction("DADDI", 0, "R2", "R2", "0"));
-
+//        instructions.add(new Instruction("DADDI", 0, "R2", "R2", "0"));
+//
         instructions.add(new Instruction("L.D", 0, "F0", "0", "R1"));
         instructions.add(new Instruction("MUL.D", 0, "F4", "F0", "F2"));
         instructions.add(new Instruction("S.D", 0, "F4", "0", "R1"));
-        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "9"));
+        instructions.add(new Instruction("DSUBI", 0, "R1", "R1", "8"));
 //        instructions.add(new Instruction("BNE", 0, "R1", "R2", "2"));
 
 
@@ -51,11 +50,11 @@ public class Main {
         latencies.put("ADD.D", 5);
         latencies.put("SUB.D", 5);
         latencies.put("S.D", 2);
-        latencies.put("DADDI", 2);
         latencies.put("LD", 2);
         latencies.put("BNE", 2);
         latencies.put("BEQ", 2);
-        latencies.put("DSUBI", 2);
+        latencies.put("DADDI", 0);
+        latencies.put("DSUBI", 0);
 
         // Initialize Reservation Stations
         ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");

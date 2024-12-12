@@ -150,6 +150,7 @@ public class ReservationStationEntry {
             System.out.println("Instruction " + instruction.getOpcode() + " started execution.");
             if (instruction.getOpcode().equals("L.D") || instruction.getOpcode().equals("L.S") ||
                     instruction.getOpcode().equals("LD") || instruction.getOpcode().equals("LW")) {
+
                 // Assuming Vk holds the effective address for load instructions
                 int cacheSlotAddress = (int) Vk;
                 // Check if the cache slot at the effective address is empty

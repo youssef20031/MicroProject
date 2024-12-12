@@ -110,7 +110,7 @@ public class RegisterFile {
             floatRegisterFile[index].removeQi(Qi);
         } else if (name.startsWith("R")) {
             int index = Integer.parseInt(name.substring(1));
-             integerRegisterFile[index].removeQi(Qi);
+            integerRegisterFile[index].removeQi(Qi);
         }
     }
 }
