@@ -88,7 +88,7 @@ public class Main {
 
         List<String[]> instructions = new ArrayList<>();
         instructions.add(new String[]{"DADDI", "R1", "R1", "24"});
-        instructions.add(new String[]{"DADDI", "R2", "R2", "0"});
+        instructions.add(new String[]{"DADDI", "R2", "R2", "-8"});
 
         instructions.add(new String[]{"L.D", "F0", "0", "R1"});
         instructions.add(new String[]{"MUL.D", "F4", "F0", "F2"});

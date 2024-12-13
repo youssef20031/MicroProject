@@ -218,6 +218,16 @@ public class ReservationStation {
                             rsEntry.setVj(entry.getResult());
                             rsEntry.setQj(new ArrayList<>());
                         }
+                        if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                                "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
+                                "SD".equals(rsEntry.getInstruction().getOpcode()) ||
+                                "SW".equals(rsEntry.getInstruction().getOpcode())) {
+
+                            if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                                rsEntry.setVj(entry.getResult());
+                                rsEntry.setQj(new ArrayList<>());
+                            }
+                        }
                         if ("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
                             if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
                                 rsEntry.setVj(entry.getResult());
@@ -242,7 +252,7 @@ public class ReservationStation {
                 if(entry.getInstructionNumber() == rsEntry.getQk().get(i).instructionNumber) {
                     if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
                         rsEntry.setVk(entry.getResult());
-                        rsEntry.setQk(null);
+                        rsEntry.setQk(new ArrayList<>());
                     }
                     if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||
                             "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
