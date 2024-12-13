@@ -151,6 +151,7 @@ public class Main {
                 // Existing Tomasulo issue logic for floating-point instructions
                 boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
                 if (issued) {
+
                     pc++;
                 } else {
                     System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");

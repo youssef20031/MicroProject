@@ -1,5 +1,3 @@
-// Java
-// filepath: /d:/MicroProject/src/main/java/com/microproject/microproject/simulator/TomasuloSimulator.java
 package com.microproject.microproject.simulator;
 
 import com.microproject.microproject.MainController;
@@ -13,12 +11,14 @@ import java.util.*;
 
 public class TomasuloSimulator extends Application {
 
-    private int cycle = 0;
+    private int cycle = 1;
     private int pc = 0; // Program counter
+    public static int numberOfInstructions = 0; // Added numberOfInstructions
+
     private List<Instruction> instructions;
     private List<String[]> instructionData;
-    private List<ReservationStation> reservationStations;
-    private RegisterFile registerFile;
+    public List<ReservationStation> reservationStations;
+    public static RegisterFile registerFile;
     private CommonDataBus cdb;
     private Cache cache;
     private Map<String, Integer> latencies;
@@ -44,6 +44,8 @@ public class TomasuloSimulator extends Application {
     private void initializeSimulation() {
         cycle = 1;
         pc = 0;
+        numberOfInstructions = 0; // Initialize numberOfInstructions
+
         instructions = new ArrayList<>();
         instructionData = new ArrayList<>();
         reservationStations = new ArrayList<>();
@@ -82,19 +84,20 @@ public class TomasuloSimulator extends Application {
                 integerMulDivRS, integerLoadRS, integerStoreRS
         ));
 
-        // Initialize instructions (as String arrays)
+        // Initialize instructions
         instructionData.add(new String[]{"DADDI", "R1", "R1", "24"});
-        instructionData.add(new String[]{"DADDI", "R2", "R2", "0"});
+        instructionData.add(new String[]{"DADDI", "R2", "R2", "-8"});
+
         instructionData.add(new String[]{"L.D", "F0", "0", "R1"});
         instructionData.add(new String[]{"MUL.D", "F4", "F0", "F2"});
         instructionData.add(new String[]{"S.D", "F4", "0", "R1"});
         instructionData.add(new String[]{"DSUBI", "R1", "R1", "8"});
         instructionData.add(new String[]{"BNE", "R1", "R2", "2"});
 
-        // Initialize Registers if needed
+        // Initialize Registers
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        integerRegisterFile[1] = new Register("R1", 0, new ArrayList<>());
-        integerRegisterFile[2] = new Register("R2", 0, new ArrayList<>());
+        // integerRegisterFile[1] = new Register("R1", 25, new ArrayList<>());
+        // integerRegisterFile[2] = new Register("R2", 1, new ArrayList<>());
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
         floatRegisterFile[2] = new Register("F2", 2.0, new ArrayList<>());
@@ -145,6 +148,7 @@ public class TomasuloSimulator extends Application {
         // Issue stage
         if (!branchTaken && pc < instructionData.size()) {
             String[] data = instructionData.get(pc);
+            numberOfInstructions++; // Increment numberOfInstructions
             Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3]);
             instructions.add(inst);
             boolean issued = issueInstruction(inst);
@@ -172,7 +176,6 @@ public class TomasuloSimulator extends Application {
             System.out.println("Simulation completed in " + cycle + " cycles.");
         } else {
             cycle++;
-            // If you have a UI, you might need to update it here
         }
         System.out.println("-----------------------------");
     }
@@ -261,16 +264,12 @@ public class TomasuloSimulator extends Application {
         List<InstructionStatus> statuses = new ArrayList<>();
         for (Instruction inst : instructions) {
             InstructionStatus status = new InstructionStatus(
-                inst.getOpcode(),
-                inst.getSource1(),
-                inst.getSource2(),
-                inst.getDestination()
+                    inst.getOpcode(),
+                    inst.getSource1(),
+                    inst.getSource2(),
+                    inst.getDestination()
             );
             statuses.add(status);
-        }
-        //print instructions
-        for (Instruction inst : instructions) {
-            System.out.println("Instruction Status: " + inst);
         }
         System.out.println("Instruction Statuses: " + statuses);
         return statuses;
@@ -286,7 +285,7 @@ public class TomasuloSimulator extends Application {
 
     public List<RegisterStatus> getRegisterStatuses() {
         List<RegisterStatus> registerStatuses = new ArrayList<>();
-        // Populate registerStatuses from registerFile
+        // Populate register statuses from registerFile
         for (Register reg : registerFile.getFloatRegisterFile()) {
             registerStatuses.add(new RegisterStatus(reg.getName(), String.valueOf(reg.getValue())));
         }
