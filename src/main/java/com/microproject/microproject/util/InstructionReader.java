@@ -22,7 +22,7 @@ public class InstructionReader {
         List<String[]> instructions = new ArrayList<>();
         
         // Define opcodes that are considered as 'Load' or 'Store' instructions
-        List<String> loadStoreOpcodes = List.of("L.D", "S.D", "LD", "SD"); // Add more as needed
+        List<String> loadStoreOpcodes = List.of("L.D", "S.D", "LD", "SD", "SW", "S.S", "LW", "L.S"); // Add more as needed
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;

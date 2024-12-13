@@ -11,6 +11,7 @@ import com.microproject.microproject.util.InstructionReader;
 import com.microproject.microproject.util.InstructionLatencyReader;
 import com.microproject.microproject.util.ReservationStationReader;
 import com.microproject.microproject.util.CacheReader;
+import com.microproject.microproject.util.RegisterReader;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -165,8 +166,28 @@ public class TomasuloSimulator extends Application {
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
         //floatRegisterFile[1] = new Register("F0", 2.0, new ArrayList<>());
-        floatRegisterFile[2] = new Register("F2", 4.0, new ArrayList<>());
-        floatRegisterFile[4] = new Register("F4", 1.5, new ArrayList<>());
+        //floatRegisterFile[2] = new Register("F2", 4.0, new ArrayList<>());
+        //floatRegisterFile[4] = new Register("F4", 1.5, new ArrayList<>());
+
+        //read register from file
+        String registerFilePath = "src/main/java/com/microproject/microproject/text/register.txt";
+        List<Pair<String, Integer>> registerFileCopy = new ArrayList<>();
+        try {
+            registerFileCopy = RegisterReader.readRegisters(registerFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //check whether the register is integer or float
+        for (int i = 0; i < registerFileCopy.size(); i++) {
+            Pair<String, Integer> item = registerFileCopy.get(i);
+            if (item.getKey().charAt(0) == 'F') {
+                floatRegisterFile[Integer.parseInt(item.getKey().substring(1))] = new Register(item.getKey(), item.getValue(), new ArrayList<>());
+            } else {
+                integerRegisterFile[Integer.parseInt(item.getKey().substring(1))] = new Register(item.getKey(), item.getValue(), new ArrayList<>());
+            }
+        }
+
 
 
 
@@ -277,11 +298,15 @@ public class TomasuloSimulator extends Application {
                 rs = getReservationStationByName("Add/SubI");
                 break;
             case "ADD.D":
+            case "ADD.S":
             case "SUB.D":
+            case "SUB.S":
                 rs = getReservationStationByName("Add/Sub");
                 break;
             case "MUL.D":
+            case "MUL.S":
             case "DIV.D":
+            case "DIV.S":
                 rs = getReservationStationByName("Mul/Div");
                 break;
             case "LD":

@@ -217,7 +217,6 @@ public class ReservationStationEntry {
         String opcode = instruction.getOpcode();
         switch (opcode) {
             case "DADDI":
-            case "ADDI":
             case "ADD.D":
             case "ADD.S":
                 result = Vj + Vk;
