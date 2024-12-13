@@ -147,7 +147,7 @@ public class Main {
                 // Instruction inst = instructions.get(pc);
                 String[] data = instructions.get(pc);
                 numberOfInstructions++;
-                Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3]);
+                Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3], numberOfInstructions);
                 // Existing Tomasulo issue logic for floating-point instructions
                 boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);
                 if (issued) {

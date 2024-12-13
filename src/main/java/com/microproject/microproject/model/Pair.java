@@ -15,4 +15,8 @@ public class Pair{
     public int getInstructionNumber() {
         return instructionNumber;
     }
+    @Override
+    public String toString() {
+        return reservationStationName + ", " + instructionNumber;
+    }
 }

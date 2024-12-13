@@ -14,19 +14,20 @@ public class Instruction {
     private double dataToStore;
     private int effectiveAddress;
     private double LoadedData;
-    private int instructionNumber = numberOfInstructions;
+    private int instructionNumber;
 
     // Default constructor
     public Instruction() {
     }
 
     // Parameterized constructor
-    public Instruction(String opcode, int latency, String destination, String source1, String source2) {
+    public Instruction(String opcode, int latency, String destination, String source1, String source2, int instructionNumber) {
         this.opcode = opcode;
         this.latency = latency;
         this.destination = destination;
         this.source1 = source1;
         this.source2 = source2;
+        this.instructionNumber = instructionNumber;
     }
 
     public int getInstructionNumber() {

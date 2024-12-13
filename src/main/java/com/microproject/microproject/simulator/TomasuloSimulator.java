@@ -11,18 +11,18 @@ import java.util.*;
 
 public class TomasuloSimulator extends Application {
 
-    private int cycle = 1;
-    private int pc = 0; // Program counter
+    public int cycle = 1;
+    public int pc = 0; // Program counter
     public static int numberOfInstructions = 0; // Added numberOfInstructions
 
-    private List<Instruction> instructions;
-    private List<String[]> instructionData;
-    public List<ReservationStation> reservationStations;
+    public List<Instruction> instructions;
+    public List<String[]> instructionData;
+    public static List<ReservationStation> reservationStations;
     public static RegisterFile registerFile;
-    private CommonDataBus cdb;
-    private Cache cache;
-    private Map<String, Integer> latencies;
-    private Map<String, String> registerStatus;
+    public CommonDataBus cdb;
+    public Cache cache;
+    public Map<String, Integer> latencies;
+    public Map<String, String> registerStatus;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -84,6 +84,16 @@ public class TomasuloSimulator extends Application {
                 integerMulDivRS, integerLoadRS, integerStoreRS
         ));
 
+        // Initialize Registers
+        Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
+        // integerRegisterFile[1] = new Register("R1", 25, new ArrayList<>());
+        // integerRegisterFile[2] = new Register("R2", 1, new ArrayList<>());
+
+        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
+        floatRegisterFile[2] = new Register("F2", 2.0, new ArrayList<>());
+
+
+
         // Initialize instructions
         instructionData.add(new String[]{"DADDI", "R1", "R1", "24"});
         instructionData.add(new String[]{"DADDI", "R2", "R2", "-8"});
@@ -94,14 +104,7 @@ public class TomasuloSimulator extends Application {
         instructionData.add(new String[]{"DSUBI", "R1", "R1", "8"});
         instructionData.add(new String[]{"BNE", "R1", "R2", "2"});
 
-        // Initialize Registers
-        Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        // integerRegisterFile[1] = new Register("R1", 25, new ArrayList<>());
-        // integerRegisterFile[2] = new Register("R2", 1, new ArrayList<>());
-
-        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        floatRegisterFile[2] = new Register("F2", 2.0, new ArrayList<>());
-    }
+       }
 
     public void nextCycle() {
         System.out.println("Cycle: " + cycle);
@@ -149,8 +152,10 @@ public class TomasuloSimulator extends Application {
         if (!branchTaken && pc < instructionData.size()) {
             String[] data = instructionData.get(pc);
             numberOfInstructions++; // Increment numberOfInstructions
-            Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3]);
+            System.out.println("Number of Instruction " + numberOfInstructions + ".");
+            Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3], numberOfInstructions);
             instructions.add(inst);
+            System.out.println("Instruction " + inst.getInstructionNumber() + ".");
             boolean issued = issueInstruction(inst);
             if (issued) {
                 pc++;
@@ -174,6 +179,7 @@ public class TomasuloSimulator extends Application {
 
         if (done) {
             System.out.println("Simulation completed in " + cycle + " cycles.");
+            //return;
         } else {
             cycle++;
         }

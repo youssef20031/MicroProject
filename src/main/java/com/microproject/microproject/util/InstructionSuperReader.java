@@ -28,8 +28,8 @@ public class InstructionSuperReader {
                     }
                 }
 
-                Instruction instruction = new Instruction(opcode, latency, destination, source1, source2);
-                instructions.add(instruction);
+                //Instruction instruction = new Instruction(opcode, latency, destination, source1, source2);
+                //instructions.add(instruction);
             }
         }
         return instructions;

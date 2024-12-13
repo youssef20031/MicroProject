@@ -1,6 +1,7 @@
 package com.microproject.microproject.model;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import com.microproject.microproject.model.Cache;
 
@@ -284,6 +285,17 @@ public class ReservationStationEntry {
             this.reservationStationName = reservationStationName;
             this.instructionNumber = instructionNumber;
         }
+
+        public String getReservationStationName() {
+            return reservationStationName;
+        }
+        public int getInstructionNumber() {
+            return instructionNumber;
+        }
+        @Override
+        public String toString() {
+            return reservationStationName + ", " + instructionNumber;
+        }
     }
 
     // Getter for reservationStationName
@@ -310,4 +322,24 @@ public class ReservationStationEntry {
     public void setOperation(String opcode) {
         this.operation = opcode;
     }
+
+
+    // ReservationStationEntry.java
+public String getQjString() {
+    if (Qj == null || Qj.isEmpty()) {
+        return "";
+    }
+    return Qj.stream()
+             .map(Pair::toString)
+             .collect(Collectors.joining(", "));
+}
+
+public String getQkString() {
+    if (Qk == null || Qk.isEmpty()) {
+        return "";
+    }
+    return Qk.stream()
+             .map(Pair::toString)
+             .collect(Collectors.joining(", "));
+}
 }
