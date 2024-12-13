@@ -7,6 +7,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import com.microproject.microproject.util.InstructionReader;
+import com.microproject.microproject.util.InstructionLatencyReader;
+import com.microproject.microproject.util.ReservationStationReader;
+import com.microproject.microproject.util.CacheReader;
+import javafx.util.Pair;
+
 import java.util.*;
 
 public class TomasuloSimulator extends Application {
@@ -51,11 +57,52 @@ public class TomasuloSimulator extends Application {
         reservationStations = new ArrayList<>();
         registerFile = new RegisterFile();
         cdb = new CommonDataBus();
-        cache = new Cache(8, 256, 2, 10);
+        cache = null;
         registerStatus = new HashMap<>();
 
-        // Latency for each operation
+        // Initialize Cache from file
+        String cacheFilePath = "src/main/java/com/microproject/microproject/text/cache.txt";
+        List<Integer> cacheEntries = new ArrayList<>();
+        try {
+            cacheEntries = CacheReader.readCacheConfig(cacheFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cache = new Cache(cacheEntries.get(0), cacheEntries.get(1), cacheEntries.get(2), cacheEntries.get(3));
+
+        String instructionsFilePath = "src/main/java/com/microproject/microproject/text/instruction.txt";
+        String latenciesFilePath = "src/main/java/com/microproject/microproject/text/latency.txt";
+        List<String[]> instructionDataCopy = new ArrayList<>();
+        List<Pair<String, Integer>> latenciesCopy = new ArrayList<>();
+        try {
+            instructionDataCopy = InstructionReader.readInstructions(instructionsFilePath);
+            latenciesCopy = InstructionLatencyReader.readLatencies(latenciesFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //loop instructionDataCopy to populate instructionData
+        for (int i = 0; i < instructionDataCopy.size(); i++) {
+            String[] instruction = instructionDataCopy.get(i);
+            String opcode = instruction[0];
+            String destination = instruction.length > 1 ? instruction[1] : "";
+            String source1 = instruction.length > 2 ? instruction[2] : "";
+            String source2 = instruction.length > 3 ? instruction[3] : "";
+            String[] instructionData = new String[]{opcode, destination, source1, source2};
+            this.instructionData.add(instructionData);
+        }
+
+        //loop latenciesCopy to populate latencies
         latencies = new HashMap<>();
+        for (int i = 0; i < latenciesCopy.size(); i++) {
+            Pair<String, Integer> item = latenciesCopy.get(i);
+            latencies.put(item.getKey(), item.getValue());
+        }
+
+
+
+        // Latency for each operation
+        /*latencies = new HashMap<>();
         latencies.put("L.D", 2);
         latencies.put("MUL.D", 4);
         latencies.put("DIV.D", 4);
@@ -66,10 +113,26 @@ public class TomasuloSimulator extends Application {
         latencies.put("BNE", 2);
         latencies.put("BEQ", 2);
         latencies.put("DADDI", 0);
-        latencies.put("DSUBI", 0);
+        latencies.put("DSUBI", 0);*/
+
+        // Initialize Reservation Stations from file
+        String reservationStationsFilePath = "src/main/java/com/microproject/microproject/text/reservationstation.txt";
+        List<Pair<Integer, String>> reservationStationsCopy = new ArrayList<>();
+        try {
+            reservationStationsCopy = ReservationStationReader.readReservationStations(reservationStationsFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < reservationStationsCopy.size(); i++) {
+            Pair<Integer, String> item = reservationStationsCopy.get(i);
+            ReservationStation rs = new ReservationStation(item.getKey(), item.getValue());
+            reservationStations.add(rs);
+        }
+
 
         // Initialize Reservation Stations
-        ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
+        /*ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
         ReservationStation mulDivRS = new ReservationStation(2, "Mul/Div");
         ReservationStation loadRS = new ReservationStation(2, "Load");
         ReservationStation storeRS = new ReservationStation(2, "Store");
@@ -77,12 +140,12 @@ public class TomasuloSimulator extends Application {
         ReservationStation integerAddSubRS = new ReservationStation(3, "Add/SubI");
         ReservationStation integerMulDivRS = new ReservationStation(2, "Mul/DivI");
         ReservationStation integerLoadRS = new ReservationStation(2, "LoadI");
-        ReservationStation integerStoreRS = new ReservationStation(2, "StoreI");
+        ReservationStation integerStoreRS = new ReservationStation(2, "StoreI");*/
 
-        reservationStations.addAll(Arrays.asList(
+        /*reservationStations.addAll(Arrays.asList(
                 branchRS, integerAddSubRS, addSubRS, mulDivRS, loadRS, storeRS,
                 integerMulDivRS, integerLoadRS, integerStoreRS
-        ));
+        ));*/
 
         // Initialize Registers
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
@@ -95,14 +158,14 @@ public class TomasuloSimulator extends Application {
 
 
         // Initialize instructions
-        instructionData.add(new String[]{"DADDI", "R1", "R1", "24"});
+        /*instructionData.add(new String[]{"DADDI", "R1", "R1", "24"});
         instructionData.add(new String[]{"DADDI", "R2", "R2", "-8"});
 
         instructionData.add(new String[]{"L.D", "F0", "0", "R1"});
         instructionData.add(new String[]{"MUL.D", "F4", "F0", "F2"});
         instructionData.add(new String[]{"S.D", "F4", "0", "R1"});
         instructionData.add(new String[]{"DSUBI", "R1", "R1", "8"});
-        instructionData.add(new String[]{"BNE", "R1", "R2", "2"});
+        instructionData.add(new String[]{"BNE", "R1", "R2", "2"});*/
 
        }
 

@@ -30,7 +30,7 @@ public class InstructionReader {
 
     public static void main(String[] args) {
         try {
-            String filePath = "src/main/java/com/microproject/microproject/util/test.txt"; // Adjust the path as needed
+            String filePath = "src/main/java/com/microproject/microproject/text/instruction.txt"; // Adjust the path as needed
             List<String[]> instructions = readInstructions(filePath);
             for (String[] instruction : instructions) {
                 System.out.println(String.join(", ", instruction));
