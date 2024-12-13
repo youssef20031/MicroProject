@@ -5,15 +5,16 @@ import java.util.ArrayList;
 
 public class Register {
 
-    private ArrayList<String> Qi;
+    private ArrayList<ArrayList<String>> Qi;
     private String name;
     private double value;
+    private int instructionNumber;
 
     public Register() {
     }
 
     // Float Regiser File
-    public Register(String name, double value, ArrayList<String> Qi) {
+    public Register(String name, double value, ArrayList<ArrayList<String>> Qi) {
         this.name = name;
         this.value = value;
         this.Qi = Qi;
@@ -33,11 +34,11 @@ public class Register {
     }
 
 
-    public ArrayList<String> getQi() {
+    public ArrayList<ArrayList<String>> getQi() {
         return Qi;
     }
 
-    public void setQi(ArrayList<String> qi) {
+    public void setQi(ArrayList<ArrayList<String>> qi) {
         Qi = qi;
     }
 
@@ -47,12 +48,18 @@ public class Register {
         }
     }
     // Register.java
-    public void removeQi(String Qi) {
+    public void removeQi(ArrayList<String> Qi) {
         if (this.Qi != null && Qi != null) {
-            this.Qi.remove(Qi);
+            for(int i = 0;i < this.Qi.size();i++) {
+                if(this.Qi.get(i).getFirst().equals(Qi.getFirst()) && this.Qi.get(i).getLast().equals(Qi.getLast())) {
+                    this.Qi.remove(i);
+                    break;
+                }
+            }
+
         }
     }
-    public void addQi(String Qi) {
+    public void addQi(ArrayList<String> Qi) {
         if(this.Qi == null) {
             this.Qi = new ArrayList<>();
         }

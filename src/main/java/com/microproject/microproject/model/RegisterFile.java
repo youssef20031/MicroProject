@@ -9,11 +9,11 @@ public class RegisterFile {
     public RegisterFile() {
         this.floatRegisterFile = new Register[32];
         for (int i = 0; i < 32; i++) {
-            floatRegisterFile[i] = new Register("F" + i, 0, new ArrayList<String>());
+            floatRegisterFile[i] = new Register("F" + i, 0, new ArrayList<ArrayList<String>>());
         }
         this.integerRegisterFile = new Register[32];
         for (int i = 0; i < 32; i++) {
-            integerRegisterFile[i] = new Register("R" + i, 0, new ArrayList<String>());
+            integerRegisterFile[i] = new Register("R" + i, 0, new ArrayList<ArrayList<String>>());
         }
     }
 
@@ -51,7 +51,7 @@ public class RegisterFile {
     }
 
     // Set Qi for a register
-    public void setRegisterQi(String name, String Qi) {
+    public void setRegisterQi(String name, ArrayList<String> Qi) {
         if (name.startsWith("F")) {
             int index = Integer.parseInt(name.substring(1));
             floatRegisterFile[index].addQi(Qi);
@@ -72,7 +72,7 @@ public class RegisterFile {
     }
 
     // Get Qi for a register
-    public ArrayList<String> getRegisterQi(String name) {
+    public ArrayList<ArrayList<String>> getRegisterQi(String name) {
         if (name.startsWith("F")) {
             int index = Integer.parseInt(name.substring(1));
             return floatRegisterFile[index].getQi();
@@ -80,7 +80,7 @@ public class RegisterFile {
             int index = Integer.parseInt(name.substring(1));
             return integerRegisterFile[index].getQi();
         }
-        return new ArrayList<String>();
+        return null;
     }
 
     public void printStatus() {
@@ -104,7 +104,7 @@ public class RegisterFile {
         return null;
     }
     // RegisterFile.java
-    public void removeQi(String name, String Qi) {
+    public void removeQi(String name, ArrayList<String> Qi) {
         if (name.startsWith("F")) {
             int index = Integer.parseInt(name.substring(1));
             floatRegisterFile[index].removeQi(Qi);

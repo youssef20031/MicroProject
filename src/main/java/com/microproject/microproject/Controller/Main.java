@@ -102,6 +102,8 @@ public class Main {
         while (true) {
             System.out.println("Cycle: " + cycle);
 
+            if(cycle == 14)
+                System.out.println("hey");
 
             // Write-back stage for floating-point instructions
             for (ReservationStation rs : reservationStations) {
