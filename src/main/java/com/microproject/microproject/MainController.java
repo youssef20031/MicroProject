@@ -6,6 +6,7 @@ import com.microproject.microproject.model.RegisterStatus;
 import com.microproject.microproject.model.ReservationStationEntry;
 import com.microproject.microproject.simulator.TomasuloSimulator;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -82,6 +83,9 @@ public class MainController {
 
     @FXML
     private TableColumn<CacheEntry, Double> cacheDataColumn;
+
+    @FXML
+    private Label cycleLabel;
 
     private ObservableList<CacheEntry> cacheEntries;
 
@@ -177,6 +181,9 @@ public class MainController {
         updateRegisterFileUI();
 
         updateCacheUI();
+
+        cycleLabel.setText("Cycle: " + simulator.getCycle());
+
     }
 
     private void updateRegisterFileUI() {

@@ -27,6 +27,7 @@
     </top>
     <center>
         <VBox spacing="10">
+            <Label fx:id="cycleLabel" text="Cycle: 0" style="-fx-font-size: 16px;"/>
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
