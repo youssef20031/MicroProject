@@ -30,6 +30,8 @@ public class TomasuloSimulator extends Application {
     public Cache cache;
     public Map<String, Integer> latencies;
     public Map<String, String> registerStatus;
+    public static boolean branchInProgress = false;
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -48,12 +50,11 @@ public class TomasuloSimulator extends Application {
 
         stage.show();
     }
-    public static boolean branchInProgress = false;
+
     private void initializeSimulation() {
         cycle = 1;
         pc = 0;
         numberOfInstructions = 0; // Initialize numberOfInstructions
-
         instructions = new ArrayList<>();
         instructionData = new ArrayList<>();
         reservationStations = new ArrayList<>();
@@ -61,9 +62,19 @@ public class TomasuloSimulator extends Application {
         cdb = new CommonDataBus();
         cache = null;
         registerStatus = new HashMap<>();
-
+        // Initialize Registers
+        Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
+        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
+        String instructionsFilePath = "src/main/java/com/microproject/microproject/text/instruction.txt";
+        String latenciesFilePath = "src/main/java/com/microproject/microproject/text/latency.txt";
+        //read register from file
+        String registerFilePath = "src/main/java/com/microproject/microproject/text/register.txt";
+        // Initialize Reservation Stations from file
+        String reservationStationsFilePath = "src/main/java/com/microproject/microproject/text/reservationstation.txt";
         // Initialize Cache from file
         String cacheFilePath = "src/main/java/com/microproject/microproject/text/cache.txt";
+
+
         List<Integer> cacheEntries = new ArrayList<>();
         try {
             cacheEntries = CacheReader.readCacheConfig(cacheFilePath);
@@ -72,8 +83,7 @@ public class TomasuloSimulator extends Application {
         }
         cache = new Cache(cacheEntries.get(0), cacheEntries.get(1), cacheEntries.get(2), cacheEntries.get(3));
 
-        String instructionsFilePath = "src/main/java/com/microproject/microproject/text/instruction.txt";
-        String latenciesFilePath = "src/main/java/com/microproject/microproject/text/latency.txt";
+
         List<String[]> instructionDataCopy = new ArrayList<>();
         List<Pair<String, Integer>> latenciesCopy = new ArrayList<>();
         try {
@@ -101,24 +111,6 @@ public class TomasuloSimulator extends Application {
             latencies.put(item.getKey(), item.getValue());
         }
 
-
-
-        // Latency for each operation
-        /*latencies = new HashMap<>();
-        latencies.put("L.D", 2);
-        latencies.put("MUL.D", 4);
-        latencies.put("DIV.D", 4);
-        latencies.put("ADD.D", 5);
-        latencies.put("SUB.D", 5);
-        latencies.put("S.D", 2);
-        latencies.put("LD", 2);
-        latencies.put("BNE", 2);
-        latencies.put("BEQ", 2);
-        latencies.put("DADDI", 0);
-        latencies.put("DSUBI", 0);*/
-
-        // Initialize Reservation Stations from file
-        String reservationStationsFilePath = "src/main/java/com/microproject/microproject/text/reservationstation.txt";
         List<Pair<Integer, String>> reservationStationsCopy = new ArrayList<>();
         try {
             reservationStationsCopy = ReservationStationReader.readReservationStations(reservationStationsFilePath);
@@ -133,44 +125,6 @@ public class TomasuloSimulator extends Application {
         }
 
 
-
-
-        //List<String[]> instr = new ArrayList<>();
-        /*instructionData.add(new String[]{"L.D", "F6", "0", "0"});
-        instructionData.add(new String[]{"ADD.D", "F7", "F1", "F3"});
-        instructionData.add(new String[]{"L.D", "F2", "20", "0"});
-        instructionData.add(new String[]{"MUL.D", "F0", "F2", "F4"});
-        instructionData.add(new String[]{"SUB.D", "F8", "F2", "F6"});
-        instructionData.add(new String[]{"DIV.D", "F10", "F0", "F6"});
-        instructionData.add(new String[]{"S.D", "F10", "0", "0"});*/
-        // Initialize Reservation Stations
-        /*ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
-        ReservationStation mulDivRS = new ReservationStation(2, "Mul/Div");
-        ReservationStation loadRS = new ReservationStation(2, "Load");
-        ReservationStation storeRS = new ReservationStation(2, "Store");
-        ReservationStation branchRS = new ReservationStation(3, "Branch");
-        ReservationStation integerAddSubRS = new ReservationStation(3, "Add/SubI");
-        ReservationStation integerMulDivRS = new ReservationStation(2, "Mul/DivI");
-        ReservationStation integerLoadRS = new ReservationStation(2, "LoadI");
-        ReservationStation integerStoreRS = new ReservationStation(2, "StoreI");*/
-
-        /*reservationStations.addAll(Arrays.asList(
-                branchRS, integerAddSubRS, addSubRS, mulDivRS, loadRS, storeRS,
-                integerMulDivRS, integerLoadRS, integerStoreRS
-        ));*/
-
-        // Initialize Registers
-        Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        // integerRegisterFile[1] = new Register("R1", 25, new ArrayList<>());
-        // integerRegisterFile[2] = new Register("R2", 1, new ArrayList<>());
-
-        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        //floatRegisterFile[1] = new Register("F0", 2.0, new ArrayList<>());
-        //floatRegisterFile[2] = new Register("F2", 4.0, new ArrayList<>());
-        //floatRegisterFile[4] = new Register("F4", 1.5, new ArrayList<>());
-
-        //read register from file
-        String registerFilePath = "src/main/java/com/microproject/microproject/text/register.txt";
         List<Pair<String, Integer>> registerFileCopy = new ArrayList<>();
         try {
             registerFileCopy = RegisterReader.readRegisters(registerFilePath);
@@ -189,22 +143,10 @@ public class TomasuloSimulator extends Application {
         }
 
 
-
-
-        // Initialize instructions
-        /*instructionData.add(new String[]{"DADDI", "R1", "R1", "24"});
-        instructionData.add(new String[]{"DADDI", "R2", "R2", "-8"});
-
-        instructionData.add(new String[]{"L.D", "F0", "0", "R1"});
-        instructionData.add(new String[]{"MUL.D", "F4", "F0", "F2"});
-        instructionData.add(new String[]{"S.D", "F4", "0", "R1"});
-        instructionData.add(new String[]{"DSUBI", "R1", "R1", "8"});
-        instructionData.add(new String[]{"BNE", "R1", "R2", "2"});*/
-
-       }
+    }
 
     public void nextCycle() {
-        if(cycle == 22)
+        if (cycle == 22)
             System.out.println();
         System.out.println("Cycle: " + cycle);
 
