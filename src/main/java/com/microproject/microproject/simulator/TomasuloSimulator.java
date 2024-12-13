@@ -164,8 +164,8 @@ public class TomasuloSimulator extends Application {
         // integerRegisterFile[2] = new Register("R2", 1, new ArrayList<>());
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        //floatRegisterFile[1] = new Register("F1", 2.0, new ArrayList<>());
-        //floatRegisterFile[3] = new Register("F3", 4.0, new ArrayList<>());
+        //floatRegisterFile[1] = new Register("F0", 2.0, new ArrayList<>());
+        floatRegisterFile[2] = new Register("F2", 4.0, new ArrayList<>());
         floatRegisterFile[4] = new Register("F4", 1.5, new ArrayList<>());
 
 
@@ -214,8 +214,8 @@ public class TomasuloSimulator extends Application {
                         if (entry.isBranchTaken()) {
                             pc = entry.getBranchTarget();
                             branchTaken = true;
-                            branchInProgress = false;
                         }
+                        branchInProgress = false;
                         entry.setResultWritten(true);
                         break;
                     }
