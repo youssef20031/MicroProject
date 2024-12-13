@@ -8,7 +8,7 @@ import java.util.*;
 public class Main {
 
     public static RegisterFile registerFile = new RegisterFile();
-
+    public static int numberOfInstructions = 0;
     
     public static void main(String[] args) {
         // Initialize Register File
@@ -88,7 +88,7 @@ public class Main {
 
         List<String[]> instructions = new ArrayList<>();
         instructions.add(new String[]{"DADDI", "R1", "R1", "24"});
-        instructions.add(new String[]{"DADDI", "R2", "R2", "0"});
+        instructions.add(new String[]{"DADDI", "R2", "R2", "-8"});
 
         instructions.add(new String[]{"L.D", "F0", "0", "R1"});
         instructions.add(new String[]{"MUL.D", "F4", "F0", "F2"});
@@ -102,6 +102,8 @@ public class Main {
         while (true) {
             System.out.println("Cycle: " + cycle);
 
+            if(cycle == 14)
+                System.out.println("hey");
 
             // Write-back stage for floating-point instructions
             for (ReservationStation rs : reservationStations) {
@@ -144,6 +146,7 @@ public class Main {
             if (!branchTaken && pc < instructions.size()) {
                 // Instruction inst = instructions.get(pc);
                 String[] data = instructions.get(pc);
+                numberOfInstructions++;
                 Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3]);
                 // Existing Tomasulo issue logic for floating-point instructions
                 boolean issued = issueInstruction(inst, reservationStations, registerFile, registerStatus, latencies);

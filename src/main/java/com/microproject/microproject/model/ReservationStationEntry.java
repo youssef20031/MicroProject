@@ -12,10 +12,10 @@ public class ReservationStationEntry {
     private String operation;
     private Instruction instruction;
     private int latency;
-    private ArrayList<String> Qk;
+    private ArrayList<Pair> Qk;
     private double Vj;
     private double Vk;
-    private ArrayList<String> Qj;
+    private ArrayList<Pair> Qj;
     private String destination;
     private double result;
     private boolean executionStarted = false;
@@ -33,6 +33,8 @@ public class ReservationStationEntry {
         this.latency = latency;
         this.remainingCycles = latency;
         this.destination = instruction.getDestination();
+        this.Qj = new ArrayList<>();
+        this.Qk = new ArrayList<>();
     }
 
     public int getImmediate() {
@@ -104,12 +106,12 @@ public class ReservationStationEntry {
     }
 
 
-    public ArrayList<String> getQj() {
+    public ArrayList<Pair> getQj() {
         return Qj;
     }
 
 
-    public ArrayList<String> getQk() {
+    public ArrayList<Pair> getQk() {
         return Qk;
     }
 
@@ -122,22 +124,22 @@ public class ReservationStationEntry {
         this.Vk = Vk;
     }
 
-    public void setQj(ArrayList<String> Qj) {
+    public void setQj(ArrayList<Pair> Qj) {
         this.Qj = Qj;
     }
 
-    public void setQk(ArrayList<String> Qk) {
+    public void setQk(ArrayList<Pair> Qk) {
         this.Qk = Qk;
     }
 
-    public void addQj(String Qj) {
+    public void addQj(Pair Qj) {
         if (this.Qj == null) {
             this.Qj = new ArrayList<>();
         }
         this.Qj.add(Qj);
     }
 
-    public void addQk(String Qk) {
+    public void addQk(Pair Qk) {
         if (this.Qk == null) {
             this.Qk = new ArrayList<>();
         }
@@ -274,6 +276,15 @@ public class ReservationStationEntry {
         return instruction;
     }
 
+    public static class Pair{
+        String reservationStationName;
+        int instructionNumber;
+
+        public Pair(String reservationStationName, int instructionNumber){
+            this.reservationStationName = reservationStationName;
+            this.instructionNumber = instructionNumber;
+        }
+    }
 
     // Getter for reservationStationName
     public String getReservationStationName() {

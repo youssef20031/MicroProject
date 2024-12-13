@@ -56,9 +56,9 @@ public class ReservationStation {
         if (opcode.equals("L.D") || opcode.equals("L.S") || opcode.equals("LD") || opcode.equals("LW")) {
 
             if (src2 != null && !src2.isEmpty()) {
-                ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
+                ArrayList<ArrayList<String>> src2Qi = registerFile.getRegisterQi(src2);
                 if (src2Qi != null && !src2Qi.isEmpty()) {
-                    entry.addQk(src2Qi.getLast());
+                    entry.addQk(new ReservationStationEntry.Pair(src2Qi.getLast().getFirst(), inst.getInstructionNumber()));
                 } else {
                     double baseValue = registerFile.getRegisterValue(src2);
                     int offset = Integer.parseInt(src1);
@@ -74,10 +74,10 @@ public class ReservationStation {
             // For Store: Compute effective address Vk = base register value + offset
             // Check Qi for source2 from registerFile
             if (src2 != null && !src2.isEmpty()) {
-                ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
+                ArrayList<ArrayList<String>> src2Qi = registerFile.getRegisterQi(src2);
                 System.out.println("src2Qi: " + src2Qi);
                 if (src2Qi != null && !src2Qi.isEmpty()) {
-                    entry.addQk(src2Qi.getLast());
+                    entry.addQk(new ReservationStationEntry.Pair(src2Qi.getLast().getFirst(), Integer.parseInt(src2Qi.getLast().getLast())));
                 } else {
                     double baseValue = registerFile.getRegisterValue(src2);
                     int offset = Integer.parseInt(src1);
@@ -89,9 +89,9 @@ public class ReservationStation {
 
             // Get data to store from the destination register
             if (registerFile.getRegisterQi(dest) != null && !registerFile.getRegisterQi(dest).isEmpty()) {
-                ArrayList<String> destQi = registerFile.getRegisterQi(dest);
+                ArrayList<ArrayList<String>> destQi = registerFile.getRegisterQi(dest);
                 if (destQi != null && !destQi.isEmpty()) {
-                    entry.addQj(destQi.getLast());
+                    entry.addQj(new ReservationStationEntry.Pair(destQi.getLast().getFirst(), Integer.parseInt(destQi.getLast().getLast())));
                 }
             } else {
                 entry.setVj(registerFile.getRegisterValue(dest));
@@ -101,9 +101,9 @@ public class ReservationStation {
             // destination is the first register, src1 is the second register, src2 is the branch target (offset)
             // Handle first register dependencies
             if (destination != null && !destination.isEmpty()) {
-                ArrayList<String> destQi = registerFile.getRegisterQi(destination);
+                ArrayList<ArrayList<String>> destQi = registerFile.getRegisterQi(destination);
                 if (destQi != null && !destQi.isEmpty()) {
-                    entry.addQj(destQi.get(destQi.size() - 1));
+                    entry.addQj(new ReservationStationEntry.Pair(destQi.get(destQi.size() - 1).getFirst(), Integer.parseInt(destQi.get(destQi.size() - 1).get(1))));
                 } else {
                     entry.setVj(registerFile.getRegisterValue(destination));
                 }
@@ -111,9 +111,9 @@ public class ReservationStation {
 
             // Handle second register dependencies
             if (src1 != null && !src1.isEmpty()) {
-                ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
+                ArrayList<ArrayList<String>> src1Qi = registerFile.getRegisterQi(src1);
                 if (src1Qi != null && !src1Qi.isEmpty()) {
-                    entry.addQk(src1Qi.get(src1Qi.size() - 1));
+                    entry.addQk(new ReservationStationEntry.Pair(src1Qi.get(src1Qi.size() - 1).getFirst(), Integer.parseInt(src1Qi.get(src1Qi.size() - 1).get(1))));
                 } else {
                     entry.setVk(registerFile.getRegisterValue(src1));
                 }
@@ -124,9 +124,9 @@ public class ReservationStation {
         } else {
             // Check Qi for source1 from registerFile
             if (src1 != null && !src1.isEmpty()) {
-                ArrayList<String> src1Qi = registerFile.getRegisterQi(src1);
+                ArrayList<ArrayList<String>> src1Qi = registerFile.getRegisterQi(src1);
                 if (src1Qi != null && !src1Qi.isEmpty()) {
-                    entry.addQj(src1Qi.getLast());
+                    entry.addQj(new ReservationStationEntry.Pair(src1Qi.getLast().getFirst(), Integer.parseInt(src1Qi.getLast().getLast())));
                 } else {
                     entry.setVj(registerFile.getRegisterValue(src1));
                 }
@@ -134,9 +134,9 @@ public class ReservationStation {
 
             // Check Qi for source2 from registerFile
             if (src2 != null && !src2.isEmpty()) {
-                ArrayList<String> src2Qi = registerFile.getRegisterQi(src2);
+                ArrayList<ArrayList<String>> src2Qi = registerFile.getRegisterQi(src2);
                 if (src2Qi != null && !src2Qi.isEmpty()) {
-                    entry.addQk(src2Qi.getLast());
+                    entry.addQk(new ReservationStationEntry.Pair(src2Qi.getLast().get(0), Integer.parseInt(src2Qi.getLast().getLast())));
                 } else {
                     if (src2.charAt(0) != 'F' && src2.charAt(0) != 'R')
                         entry.setVk(Integer.parseInt(src2));
@@ -146,7 +146,10 @@ public class ReservationStation {
             }
         }
         if (!opcode.equals("BNE") && !opcode.equals("BEQ") && !opcode.equals("S.D") && !opcode.equals("S.S") && !opcode.equals("SD") && !opcode.equals("SW")) {
-            registerFile.setRegisterQi(destination, this.name);
+            ArrayList<String> arrayList = new ArrayList<>();
+            arrayList.add(this.name);
+            arrayList.add(inst.getInstructionNumber() + "");
+            registerFile.setRegisterQi(destination, arrayList);
         }
         entries.add(entry);
         //System.out.println("Issued instruction: " + opcode + " to " + this.name);
@@ -173,21 +176,29 @@ public class ReservationStation {
                 if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
                     // For store instructions, broadcast src2 to clear dependencies
                     String src2 = entry.getInstruction().getSource2();
+                    entry.setResultWritten(true);
                     // Create a CDBEntry with src2
-                    CDBEntry cdbEntry = new CDBEntry(destination, result, src2);
-                    registerFile.removeQi(entry.getInstruction().getSource2(), this.name);
-                    registerFile.removeQi(destination, this.name);
+                    CDBEntry cdbEntry = new CDBEntry(entry.getInstruction(), destination, result, src2, entry.getInstruction().getInstructionNumber());
+                    
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    arrayList.add(this.name);
+                    arrayList.add(entry.getInstruction().getInstructionNumber() + "");
+                    registerFile.removeQi(entry.getInstruction().getSource2(), arrayList);
+                    registerFile.removeQi(destination, arrayList);
                     cdb.addEntry(cdbEntry);
                     System.out.println("Store instruction completed: " + opcode + ". Broadcasting src2: " + src2);
                 } else {
                     // Write the result to the register
                     registerFile.setRegisterValue(destination, result);
                     // Remove the specific Qi (reservation station name)
-                    registerFile.removeQi(destination, this.name);
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    arrayList.add(this.name);
+                    arrayList.add(entry.getInstruction().getInstructionNumber() + "");
+                    registerFile.removeQi(destination, arrayList);
 
 
                     // Add entry to Common Data Bus
-                    CDBEntry cdbEntry = new CDBEntry(destination, result);
+                    CDBEntry cdbEntry = new CDBEntry(entry.getInstruction(), destination, result, entry.getInstruction().getInstructionNumber());
                     cdb.addEntry(cdbEntry);
                     System.out.println("Result written for: " + opcode);
                 }
@@ -201,58 +212,85 @@ public class ReservationStation {
 
     public void updateEntries(CDBEntry entry) {
         for (ReservationStationEntry rsEntry : entries) {
-            if ("ADD.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "SUB.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "MUL.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "DIV.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "L.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "L.S".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "S.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "LD".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "LW".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "SW".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "DADDI".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "SUBI".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "DSUBI".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "SD".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "BNE".equals(rsEntry.getInstruction().getOpcode()) ||
-                    "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
+            if(rsEntry.getQj() != null && !rsEntry.getQj().isEmpty()) {
+                for (int i = 0; i < rsEntry.getQj().size(); i++) {
+                    if (entry.getInstructionNumber() == rsEntry.getQj().get(i).instructionNumber) {
+                        if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
+                            rsEntry.setVj(entry.getResult());
+                            rsEntry.setQj(new ArrayList<>());
+                        }
+                        if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                                "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
+                                "SD".equals(rsEntry.getInstruction().getOpcode()) ||
+                                "SW".equals(rsEntry.getInstruction().getOpcode())) {
 
-                if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
-                    rsEntry.setVj(entry.getResult());
-                    rsEntry.setQj(null);
-                }
-                if("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())){
-                    if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
-                        rsEntry.setVj(entry.getResult());
-                        rsEntry.setQj(null);
-                    }
-                }
-
-                if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
-                    rsEntry.setVj(entry.getResult());
-                    rsEntry.setQj(null);
-                }
-                if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
-                    rsEntry.setVk(entry.getResult());
-                    rsEntry.setQk(null);
-                }
-                if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||
-                        "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
-                        "SD".equals(rsEntry.getInstruction().getOpcode()) ||
-                        "SW".equals(rsEntry.getInstruction().getOpcode())) {
-
-                    if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
-                        rsEntry.setVj(entry.getResult());
-                        rsEntry.setQj(null);
-                    }
-                    if (entry.getSrc2() != null && entry.getSrc2().equals(rsEntry.getInstruction().getSource2())) {
-                        rsEntry.setVk(registerFile.getRegisterValue(entry.getSrc2()));
-                        rsEntry.setQk(null);
+                            if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                                rsEntry.setVj(entry.getResult());
+                                rsEntry.setQj(new ArrayList<>());
+                            }
+                        }
+                        if ("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
+                            if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                                rsEntry.setVj(entry.getResult());
+                                rsEntry.setQj(new ArrayList<>());
+                            }
+                        }
                     }
                 }
             }
+
+//            if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
+//                rsEntry.setVj(entry.getResult());
+//                rsEntry.setQj(null);
+//            }
+//            if ("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
+//                if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+//                    rsEntry.setVj(entry.getResult());
+//                    rsEntry.setQj(null);
+//                }
+//            }
+            for(int i = 0; i < rsEntry.getQk().size();i++){
+                if(entry.getInstructionNumber() == rsEntry.getQk().get(i).instructionNumber) {
+                    if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
+                        rsEntry.setVk(entry.getResult());
+                        rsEntry.setQk(new ArrayList<>());
+                    }
+                    if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||
+                            "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
+                            "SD".equals(rsEntry.getInstruction().getOpcode()) ||
+                            "SW".equals(rsEntry.getInstruction().getOpcode())) {
+
+                        if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+                            rsEntry.setVj(entry.getResult());
+                            rsEntry.setQj(new ArrayList<>());
+                        }
+                        if (entry.getSrc2() != null && entry.getSrc2().equals(rsEntry.getInstruction().getSource2())) {
+                            rsEntry.setVk(registerFile.getRegisterValue(entry.getSrc2()));
+                            rsEntry.setQk(new ArrayList<>());
+                        }
+                    }
+                }
+            }
+
+//            if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
+//                rsEntry.setVk(entry.getResult());
+//                rsEntry.setQk(null);
+//            }
+//            if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||
+//                    "S.S".equals(rsEntry.getInstruction().getOpcode()) ||
+//                    "SD".equals(rsEntry.getInstruction().getOpcode()) ||
+//                    "SW".equals(rsEntry.getInstruction().getOpcode())) {
+//
+//                if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
+//                    rsEntry.setVj(entry.getResult());
+//                    rsEntry.setQj(null);
+//                }
+//                if (entry.getSrc2() != null && entry.getSrc2().equals(rsEntry.getInstruction().getSource2())) {
+//                    rsEntry.setVk(registerFile.getRegisterValue(entry.getSrc2()));
+//                    rsEntry.setQk(null);
+//                }
+//            }
+
         }
     }
 
