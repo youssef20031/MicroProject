@@ -17,7 +17,7 @@ public class CommonDataBus {
         for (CDBEntry entry : entries) {
             if (entry.getDestination() != null) {
                 // Update register file
-                registerFile.setRegisterValue(entry.getDestination(), entry.getResult());
+                //registerFile.setRegisterValue(entry.getDestination(), entry.getResult());
                 // Clear register status
                 registerStatus.remove(entry.getDestination());
 

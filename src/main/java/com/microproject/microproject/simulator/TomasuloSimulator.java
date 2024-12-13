@@ -35,6 +35,7 @@ public class TomasuloSimulator extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(TomasuloSimulator.class.getResource("/com/microproject/microproject/main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Tomasulo Algorithm Simulator");
+        stage.setMaximized(true);
         stage.setScene(scene);
 
         // Initialize simulation components
@@ -131,6 +132,16 @@ public class TomasuloSimulator extends Application {
         }
 
 
+
+
+        //List<String[]> instr = new ArrayList<>();
+        /*instructionData.add(new String[]{"L.D", "F6", "0", "0"});
+        instructionData.add(new String[]{"ADD.D", "F7", "F1", "F3"});
+        instructionData.add(new String[]{"L.D", "F2", "20", "0"});
+        instructionData.add(new String[]{"MUL.D", "F0", "F2", "F4"});
+        instructionData.add(new String[]{"SUB.D", "F8", "F2", "F6"});
+        instructionData.add(new String[]{"DIV.D", "F10", "F0", "F6"});
+        instructionData.add(new String[]{"S.D", "F10", "0", "0"});*/
         // Initialize Reservation Stations
         /*ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
         ReservationStation mulDivRS = new ReservationStation(2, "Mul/Div");
@@ -153,7 +164,9 @@ public class TomasuloSimulator extends Application {
         // integerRegisterFile[2] = new Register("R2", 1, new ArrayList<>());
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        floatRegisterFile[2] = new Register("F2", 2.0, new ArrayList<>());
+        //floatRegisterFile[1] = new Register("F1", 2.0, new ArrayList<>());
+        //floatRegisterFile[3] = new Register("F3", 4.0, new ArrayList<>());
+        floatRegisterFile[4] = new Register("F4", 1.5, new ArrayList<>());
 
 
 
