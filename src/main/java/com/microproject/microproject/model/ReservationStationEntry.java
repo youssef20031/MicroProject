@@ -164,7 +164,9 @@ public class ReservationStationEntry {
 
     // ReservationStationEntry.java
     public boolean isReady(RegisterFile registerFile) {
-        return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty()) && (Qd == null || Qd.isEmpty());
+        return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty())
+                && (Qd == null || Qd.isEmpty())
+                ;
     }
 
     public void execute(RegisterFile registerFile) {

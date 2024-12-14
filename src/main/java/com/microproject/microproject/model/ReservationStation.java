@@ -57,14 +57,15 @@ public class ReservationStation {
             if (src2 != null && !src2.isEmpty()) {
                 ArrayList<ArrayList<String>> src2Qi = registerFile.getRegisterQi(src2);
                 if (src2Qi != null && !src2Qi.isEmpty()) {
-                    entry.addQk(new ReservationStationEntry.Pair(src2Qi.getLast().getFirst(), inst.getInstructionNumber()));
+                    entry.addQk(new ReservationStationEntry.Pair(src2Qi.getLast().getFirst(), Integer.parseInt(src2Qi.getLast().getLast())));
                 } else {
                     double baseValue = registerFile.getRegisterValue(src2);
-                    if (src1.contains(".")) {
+
+                    double offset = Double.parseDouble(src1);
+                    double effectiveAddress = baseValue + offset;
+                    if(effectiveAddress % 1 != 0){
                         throw new NumberFormatException("Invalid number format for register value: " + src1);
                     }
-                    int offset = Integer.parseInt(src1);
-                    double effectiveAddress = baseValue + offset;
                     entry.setVk(effectiveAddress);
                     entry.getInstruction().setEffectiveAddress((int) effectiveAddress);
                 }
@@ -82,12 +83,11 @@ public class ReservationStation {
                     entry.addQk(new ReservationStationEntry.Pair(src2Qi.getLast().getFirst(), Integer.parseInt(src2Qi.getLast().getLast())));
                 } else {
                     double baseValue = registerFile.getRegisterValue(src2);
-
-                    if (src1.contains(".")) {
+                    double offset = Double.parseDouble(src1);
+                    double effectiveAddress = baseValue + offset;
+                    if(effectiveAddress % 1 != 0){
                         throw new NumberFormatException("Invalid number format for register value: " + src1);
                     }
-                    int offset = Integer.parseInt(src1);
-                    double effectiveAddress = baseValue + offset;
                     entry.setVk(effectiveAddress);
 //                    registerFile.setRegisterQi(src2, this.name);
                 }
@@ -125,7 +125,7 @@ public class ReservationStation {
                     entry.setVk(registerFile.getRegisterValue(src1));
                 }
             }
-            if (src1.contains(".")) {
+            if (src2.contains(".")) {
                 throw new NumberFormatException("Invalid number format for register value: " + src1);
             }
             // The branch target (src2) is an immediate value (offset), so store it
@@ -156,11 +156,7 @@ public class ReservationStation {
                     entry.addQk(new ReservationStationEntry.Pair(src2Qi.getLast().get(0), Integer.parseInt(src2Qi.getLast().getLast())));
                 } else {
                     if (src2.charAt(0) != 'F' && src2.charAt(0) != 'R')
-                        //add an exception for decimal numbers
-                        if (src2.contains(".")) {
-                            throw new NumberFormatException("Invalid number format for register value: " + src2);
-                        } else
-                            entry.setVk(Integer.parseInt(src2));
+                        entry.setVk(Double.parseDouble(src2));
                     else
                         entry.setVk(registerFile.getRegisterValue(src2));
                 }

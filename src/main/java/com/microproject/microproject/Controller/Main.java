@@ -94,15 +94,15 @@ public class Main {
         List<String[]> instructions = new ArrayList<>();
 //        instructions.add(new String[]{"DADDI", "R2", "R2", "100"});
 
-        instructions.add(new String[]{"DADDI", "R1", "R1", "24"});
-        instructions.add(new String[]{"DADDI", "R2", "R2", "0"});
+        instructions.add(new String[]{"DADDI", "R1", "R0", "8"});
+//        instructions.add(new String[]{"DADDI", "R2", "R2", "0"});
 
         instructions.add(new String[]{"L.D", "F0", "0", "R1"});
-        instructions.add(new String[]{"MUL.D", "F4", "F0", "F2"});
-        instructions.add(new String[]{"S.D", "F4", "0", "R1"});
-        instructions.add(new String[]{"DSUBI", "R1", "R1", "8"});
-        instructions.add(new String[]{"BNE", "R1", "R2", "2"});
-        instructions.add(new String[]{"DADDI", "R10", "R10", "21"});
+//        instructions.add(new String[]{"MUL.D", "F4", "F0", "F2"});
+//        instructions.add(new String[]{"S.D", "F4", "0", "R1"});
+//        instructions.add(new String[]{"DSUBI", "R1", "R1", "8"});
+//        instructions.add(new String[]{"BNE", "R1", "R2", "2"});
+//        instructions.add(new String[]{"DADDI", "R10", "R10", "21"});
 
 
         // Main simulation loop
