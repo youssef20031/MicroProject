@@ -13,6 +13,7 @@ public class ReservationStationEntry {
     private String operation;
     private Instruction instruction;
     private int latency;
+    private ArrayList<Pair> Qd;
     private ArrayList<Pair> Qk;
     private double Vj;
     private double Vk;
@@ -36,6 +37,7 @@ public class ReservationStationEntry {
         this.destination = instruction.getDestination();
         this.Qj = new ArrayList<>();
         this.Qk = new ArrayList<>();
+        this.Qd = new ArrayList<>();
     }
 
     public int getImmediate() {
@@ -111,6 +113,10 @@ public class ReservationStationEntry {
         return Qj;
     }
 
+    public ArrayList<Pair> getQd() {
+        return Qd;
+    }
+
 
     public ArrayList<Pair> getQk() {
         return Qk;
@@ -132,6 +138,9 @@ public class ReservationStationEntry {
     public void setQk(ArrayList<Pair> Qk) {
         this.Qk = Qk;
     }
+    public void setQd(ArrayList<Pair> Qk) {
+        this.Qd = Qk;
+    }
 
     public void addQj(Pair Qj) {
         if (this.Qj == null) {
@@ -146,10 +155,16 @@ public class ReservationStationEntry {
         }
         this.Qk.add(Qk);
     }
+    public void addQd(Pair Qk) {
+        if (this.Qd == null) {
+            this.Qk = new ArrayList<>();
+        }
+        this.Qd.add(Qk);
+    }
 
     // ReservationStationEntry.java
     public boolean isReady(RegisterFile registerFile) {
-        return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty());
+        return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty()) && (Qd == null || Qd.isEmpty());
     }
 
     public void execute(RegisterFile registerFile) {
@@ -339,6 +354,14 @@ public String getQkString() {
         return "";
     }
     return Qk.stream()
+             .map(Pair::toString)
+             .collect(Collectors.joining(", "));
+}
+public String getQdString() {
+    if (Qd == null || Qd.isEmpty()) {
+        return "";
+    }
+    return Qd.stream()
              .map(Pair::toString)
              .collect(Collectors.joining(", "));
 }

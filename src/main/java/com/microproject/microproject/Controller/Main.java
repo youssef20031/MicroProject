@@ -83,22 +83,27 @@ public class Main {
 
 
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        floatRegisterFile[2] = new Register("F2", 2, new ArrayList<>());
+//        floatRegisterFile[2] = new Register("F2", 2, new ArrayList<>());
 
 
-        floatRegisterFile[1] = new Register("F1", 2, new ArrayList<>());
-        floatRegisterFile[3] = new Register("F3", 4, new ArrayList<>());
-        floatRegisterFile[4] = new Register("F4", 2, new ArrayList<>());
+//        floatRegisterFile[1] = new Register("F1", 2, new ArrayList<>());
+//        floatRegisterFile[3] = new Register("F3", 4, new ArrayList<>());
+//        floatRegisterFile[4] = new Register("F4", 2, new ArrayList<>());
 
 
         List<String[]> instructions = new ArrayList<>();
-        instructions.add(new String[]{"L.D", "F6", "0", "0"});
-        instructions.add(new String[]{"ADD.D", "F7", "F1", "F3"});
-        instructions.add(new String[]{"L.D", "F2", "20", "0"});
-        instructions.add(new String[]{"MUL.D", "F0", "F2", "F4"});
-        instructions.add(new String[]{"SUB.D", "F8", "F2", "F6"});
-        instructions.add(new String[]{"DIV.D", "F10", "F0", "F6"});
-        instructions.add(new String[]{"S.D", "F10", "0", "0"});
+//        instructions.add(new String[]{"DADDI", "R2", "R2", "100"});
+
+        instructions.add(new String[]{"DADDI", "R1", "R1", "24"});
+        instructions.add(new String[]{"DADDI", "R2", "R2", "0"});
+
+        instructions.add(new String[]{"L.D", "F0", "0", "R1"});
+        instructions.add(new String[]{"MUL.D", "F4", "F0", "F2"});
+        instructions.add(new String[]{"S.D", "F4", "0", "R1"});
+        instructions.add(new String[]{"DSUBI", "R1", "R1", "8"});
+        instructions.add(new String[]{"BNE", "R1", "R2", "2"});
+        instructions.add(new String[]{"DADDI", "R10", "R10", "21"});
+
 
         // Main simulation loop
         while (true) {

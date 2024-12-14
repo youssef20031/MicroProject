@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import static com.microproject.microproject.Controller.Main.registerFile;
-
+import static com.microproject.microproject.simulator.TomasuloSimulator.branchInProgress;
 
 public class ReservationStation {
     private final int capacity;
@@ -97,6 +97,7 @@ public class ReservationStation {
             }
         }// Handle Branch instructions
         else if (opcode.equals("BNE") || opcode.equals("BEQ")) {
+            branchInProgress = true;
             // destination is the first register, src1 is the second register, src2 is the branch target (offset)
             // Handle first register dependencies
             if (destination != null && !destination.isEmpty()) {
@@ -121,6 +122,14 @@ public class ReservationStation {
             // The branch target (src2) is an immediate value (offset), so store it
             entry.setImmediate(Integer.parseInt(src2));
         } else {
+
+            if (destination != null && !destination.isEmpty()) {
+                ArrayList<ArrayList<String>> destQi = registerFile.getRegisterQi(destination);
+                if (destQi != null && !destQi.isEmpty()) {
+                    entry.addQd(new ReservationStationEntry.Pair(destQi.get(destQi.size() - 1).getFirst(), Integer.parseInt(destQi.get(destQi.size() - 1).get(1))));
+                }
+            }
+
             // Check Qi for source1 from registerFile
             if (src1 != null && !src1.isEmpty()) {
                 ArrayList<ArrayList<String>> src1Qi = registerFile.getRegisterQi(src1);
@@ -211,6 +220,15 @@ public class ReservationStation {
 
     public void updateEntries(CDBEntry entry) {
         for (ReservationStationEntry rsEntry : entries) {
+            // loop on getQd()
+            for (int i = 0; i < rsEntry.getQd().size(); i++) {
+                if (entry.getInstructionNumber() == rsEntry.getQd().get(i).instructionNumber) {
+//                    rsEntry.setVj(entry.getResult());
+                    rsEntry.setQd(new ArrayList<>());
+                }
+            }
+
+
             if(rsEntry.getQj() != null && !rsEntry.getQj().isEmpty()) {
                 for (int i = 0; i < rsEntry.getQj().size(); i++) {
                     if (entry.getInstructionNumber() == rsEntry.getQj().get(i).instructionNumber) {
@@ -238,16 +256,7 @@ public class ReservationStation {
                 }
             }
 
-//            if (entry.getDestination().equals(rsEntry.getInstruction().getSource1())) {
-//                rsEntry.setVj(entry.getResult());
-//                rsEntry.setQj(null);
-//            }
-//            if ("BNE".equals(rsEntry.getInstruction().getOpcode()) || "BEQ".equals(rsEntry.getInstruction().getOpcode())) {
-//                if (entry.getDestination().equals(rsEntry.getInstruction().getDestination())) {
-//                    rsEntry.setVj(entry.getResult());
-//                    rsEntry.setQj(null);
-//                }
-//            }
+
             for(int i = 0; i < rsEntry.getQk().size();i++){
                 if(entry.getInstructionNumber() == rsEntry.getQk().get(i).instructionNumber) {
                     if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {

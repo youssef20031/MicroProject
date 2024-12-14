@@ -47,7 +47,7 @@ public class TomasuloSimulator extends Application {
 
         stage.show();
     }
-
+    public static boolean branchInProgress = false;
     private void initializeSimulation() {
         cycle = 1;
         pc = 0;
@@ -183,6 +183,8 @@ public class TomasuloSimulator extends Application {
        }
 
     public void nextCycle() {
+        if(cycle == 22)
+            System.out.println();
         System.out.println("Cycle: " + cycle);
 
         // Write-back stage
@@ -212,6 +214,7 @@ public class TomasuloSimulator extends Application {
                         if (entry.isBranchTaken()) {
                             pc = entry.getBranchTarget();
                             branchTaken = true;
+                            branchInProgress = false;
                         }
                         entry.setResultWritten(true);
                         break;
@@ -225,7 +228,7 @@ public class TomasuloSimulator extends Application {
         System.out.println("PC: " + pc);
 
         // Issue stage
-        if (!branchTaken && pc < instructionData.size()) {
+        if (!branchInProgress && !branchTaken && pc < instructionData.size()) {
             String[] data = instructionData.get(pc);
             numberOfInstructions++; // Increment numberOfInstructions
             System.out.println("Number of Instruction " + numberOfInstructions + ".");
