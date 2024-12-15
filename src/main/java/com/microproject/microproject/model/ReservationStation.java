@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import static com.microproject.microproject.Controller.Main.registerFile;
-import static com.microproject.microproject.simulator.TomasuloSimulator.branchInProgress;
+import static com.microproject.microproject.simulator.TomasuloSimulator.isBranchInProgress;
 
 public class ReservationStation {
     private final int capacity;
@@ -104,7 +104,7 @@ public class ReservationStation {
             }
         }// Handle Branch instructions
         else if (opcode.equals("BNE") || opcode.equals("BEQ")) {
-            branchInProgress = true;
+            isBranchInProgress = true;
             // destination is the first register, src1 is the second register, src2 is the branch target (offset)
             // Handle first register dependencies
             if (destination != null && !destination.isEmpty()) {

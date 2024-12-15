@@ -20,17 +20,17 @@ public class TomasuloSimulator extends Application {
 
     public int cycle = 1;
     public int pc = 0; // Program counter
-    public static int numberOfInstructions = 0; // Added numberOfInstructions
+    public static int numberOfIssuedInstructions = 0;
 
-    public List<Instruction> instructions;
-    public List<String[]> instructionData;
+    public List<Instruction> issuedInstructionsUI;
+    public List<String[]> instructions;
     public static List<ReservationStation> reservationStations;
     public static RegisterFile registerFile;
     public CommonDataBus cdb;
     public Cache cache;
     public Map<String, Integer> latencies;
     public Map<String, String> registerStatus;
-    public static boolean branchInProgress = false;
+    public static boolean isBranchInProgress = false;
 
 
     @Override
@@ -54,9 +54,9 @@ public class TomasuloSimulator extends Application {
     private void initializeSimulation() {
         cycle = 1;
         pc = 0;
-        numberOfInstructions = 0; // Initialize numberOfInstructions
+        numberOfIssuedInstructions = 0; // Initialize numberOfInstructions
+        issuedInstructionsUI = new ArrayList<>();
         instructions = new ArrayList<>();
-        instructionData = new ArrayList<>();
         reservationStations = new ArrayList<>();
         registerFile = new RegisterFile();
         cdb = new CommonDataBus();
@@ -101,7 +101,7 @@ public class TomasuloSimulator extends Application {
             String source1 = instruction.length > 2 ? instruction[2] : "";
             String source2 = instruction.length > 3 ? instruction[3] : "";
             String[] instructionData = new String[]{opcode, destination, source1, source2};
-            this.instructionData.add(instructionData);
+            this.instructions.add(instructionData);
         }
 
         //loop latenciesCopy to populate latencies
@@ -146,8 +146,6 @@ public class TomasuloSimulator extends Application {
     }
 
     public void nextCycle() {
-        if (cycle == 22)
-            System.out.println();
         System.out.println("Cycle: " + cycle);
 
         // Write-back stage
@@ -169,7 +167,7 @@ public class TomasuloSimulator extends Application {
         }
 
         boolean branchTaken = false;
-        // Check for branch resolution
+        // Check for branch
         for (ReservationStation rs : reservationStations) {
             if (rs.getName().equals("Branch")) {
                 for (ReservationStationEntry entry : rs.getEntries()) {
@@ -178,7 +176,7 @@ public class TomasuloSimulator extends Application {
                             pc = entry.getBranchTarget();
                             branchTaken = true;
                         }
-                        branchInProgress = false;
+                        isBranchInProgress = false;
                         entry.setResultWritten(true);
                         break;
                     }
@@ -188,15 +186,13 @@ public class TomasuloSimulator extends Application {
             }
         }
 
-        System.out.println("PC: " + pc);
-
         // Issue stage
-        if (!branchInProgress && !branchTaken && pc < instructionData.size()) {
-            String[] data = instructionData.get(pc);
-            numberOfInstructions++; // Increment numberOfInstructions
-            System.out.println("Number of Instruction " + numberOfInstructions + ".");
-            Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3], numberOfInstructions);
-            instructions.add(inst);
+        if (!isBranchInProgress && !branchTaken && pc < instructions.size()) {
+            String[] data = instructions.get(pc);
+            numberOfIssuedInstructions++; // Increment numberOfInstructions
+            System.out.println("Number of Instruction " + numberOfIssuedInstructions + ".");
+            Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3], numberOfIssuedInstructions);
+            issuedInstructionsUI.add(inst);
             System.out.println("Instruction " + inst.getInstructionNumber() + ".");
             boolean issued = issueInstruction(inst);
             if (issued) {
@@ -210,8 +206,8 @@ public class TomasuloSimulator extends Application {
         System.out.println("Cache Status:");
         System.out.println(cache);
 
-        // Check for completion
-        boolean done = (pc >= instructionData.size());
+        boolean done = (pc >= instructions.size());
+        // Check if all reservation stations are empty, if not, done will be false
         for (ReservationStation rs : reservationStations) {
             if (!rs.isEmpty()) {
                 done = false;
@@ -221,7 +217,6 @@ public class TomasuloSimulator extends Application {
 
         if (done) {
             System.out.println("Simulation completed in " + cycle + " cycles.");
-            //return;
         } else {
             cycle++;
         }
@@ -280,11 +275,10 @@ public class TomasuloSimulator extends Application {
             rs.issue(inst, registerFile, registerStatus, latencies.get(opcode));
             System.out.println("Issued instruction: " + inst.getOpcode() + " to " + rs.getName());
             return true;
-        } else {
-            return false;
         }
-    }
 
+        return false;
+    }
     private ReservationStation getReservationStationByName(String name) {
         for (ReservationStation rs : reservationStations) {
             if (rs.getName().equals(name)) {
@@ -294,27 +288,13 @@ public class TomasuloSimulator extends Application {
         return null;
     }
 
-    // Additional methods as needed...
-
+    // Getters for JavaFX GUI
     public int getCycle() {
         return cycle;
     }
-
-    public List<Instruction> getInstructions() {
-        return instructions;
-    }
-
-    public List<ReservationStation> getReservationStations() {
-        return reservationStations;
-    }
-
-    public RegisterFile getRegisterFile() {
-        return registerFile;
-    }
-
     public List<InstructionStatus> getInstructionStatuses() {
         List<InstructionStatus> statuses = new ArrayList<>();
-        for (Instruction inst : instructions) {
+        for (Instruction inst : issuedInstructionsUI) {
             InstructionStatus status = new InstructionStatus(
                     inst.getOpcode(),
                     inst.getSource1(),
@@ -326,7 +306,6 @@ public class TomasuloSimulator extends Application {
         System.out.println("Instruction Statuses: " + statuses);
         return statuses;
     }
-
     public List<ReservationStationEntry> getReservationStationEntries() {
         List<ReservationStationEntry> entries = new ArrayList<>();
         for (ReservationStation rs : reservationStations) {
@@ -334,7 +313,6 @@ public class TomasuloSimulator extends Application {
         }
         return entries;
     }
-
     public List<RegisterStatus> getRegisterStatuses() {
         List<RegisterStatus> registerStatuses = new ArrayList<>();
         // Populate register statuses from registerFile
@@ -346,7 +324,6 @@ public class TomasuloSimulator extends Application {
         }
         return registerStatuses;
     }
-
     public List<CacheEntry> getCacheEntries() {
         return cache.getEntries();
     }
