@@ -9,7 +9,7 @@ import javafx.util.Pair;
 
 public class InstructionLatencyReader {
 
-    public static List<Pair<String, Integer>> readInstructionsAndLatencies(String filePath) throws IOException {
+    public static List<Pair<String, Integer>> readLatencies(String filePath) throws IOException {
         List<Pair<String, Integer>> instructionsAndLatencies = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -27,8 +27,8 @@ public class InstructionLatencyReader {
 
     public static void main(String[] args) {
         try {
-            String filePath = "src/main/java/com/microproject/microproject/util/test2.txt"; // Adjust the path as needed
-            List<Pair<String, Integer>> instructionsAndLatencies = readInstructionsAndLatencies(filePath);
+            String filePath = "src/main/java/com/microproject/microproject/text/latency.txt"; // Adjust the path as needed
+            List<Pair<String, Integer>> instructionsAndLatencies = readLatencies(filePath);
             for (Pair<String, Integer> item : instructionsAndLatencies) {
                 System.out.println(item.getKey() + ": " + item.getValue());
             }

@@ -11,15 +11,13 @@ public class CommonDataBus {
         this.entries = new ArrayList<>();
     }
 
-    public void addResult(String destination, double result) {
-        entries.add(new CDBEntry(destination, result));
-    }
+
 
     public void broadcast(List<ReservationStation> reservationStations, RegisterFile registerFile, Map<String, String> registerStatus) {
         for (CDBEntry entry : entries) {
             if (entry.getDestination() != null) {
                 // Update register file
-                registerFile.setRegisterValue(entry.getDestination(), entry.getResult());
+                //registerFile.setRegisterValue(entry.getDestination(), entry.getResult());
                 // Clear register status
                 registerStatus.remove(entry.getDestination());
 
@@ -29,7 +27,8 @@ public class CommonDataBus {
                 }
 
                 System.out.println("Broadcasting result for " + entry.getDestination());
-            }  if (entry.getSrc2() != null) {
+            }
+            if (entry.getSrc2() != null) {
                 // Update waiting reservation stations for src2 dependency
                 registerFile.setRegisterValue(entry.getSrc2(), registerFile.getRegisterValue(entry.getSrc2()));
 

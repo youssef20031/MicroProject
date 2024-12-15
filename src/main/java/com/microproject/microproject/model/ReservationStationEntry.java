@@ -1,6 +1,7 @@
 package com.microproject.microproject.model;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import com.microproject.microproject.model.Cache;
 
@@ -12,10 +13,11 @@ public class ReservationStationEntry {
     private String operation;
     private Instruction instruction;
     private int latency;
-    private ArrayList<String> Qk;
+    private ArrayList<Pair> Qd;
+    private ArrayList<Pair> Qk;
     private double Vj;
     private double Vk;
-    private ArrayList<String> Qj;
+    private ArrayList<Pair> Qj;
     private String destination;
     private double result;
     private boolean executionStarted = false;
@@ -33,6 +35,9 @@ public class ReservationStationEntry {
         this.latency = latency;
         this.remainingCycles = latency;
         this.destination = instruction.getDestination();
+        this.Qj = new ArrayList<>();
+        this.Qk = new ArrayList<>();
+        this.Qd = new ArrayList<>();
     }
 
     public int getImmediate() {
@@ -104,12 +109,16 @@ public class ReservationStationEntry {
     }
 
 
-    public ArrayList<String> getQj() {
+    public ArrayList<Pair> getQj() {
         return Qj;
     }
 
+    public ArrayList<Pair> getQd() {
+        return Qd;
+    }
 
-    public ArrayList<String> getQk() {
+
+    public ArrayList<Pair> getQk() {
         return Qk;
     }
 
@@ -122,31 +131,42 @@ public class ReservationStationEntry {
         this.Vk = Vk;
     }
 
-    public void setQj(ArrayList<String> Qj) {
+    public void setQj(ArrayList<Pair> Qj) {
         this.Qj = Qj;
     }
 
-    public void setQk(ArrayList<String> Qk) {
+    public void setQk(ArrayList<Pair> Qk) {
         this.Qk = Qk;
     }
+    public void setQd(ArrayList<Pair> Qk) {
+        this.Qd = Qk;
+    }
 
-    public void addQj(String Qj) {
+    public void addQj(Pair Qj) {
         if (this.Qj == null) {
             this.Qj = new ArrayList<>();
         }
         this.Qj.add(Qj);
     }
 
-    public void addQk(String Qk) {
+    public void addQk(Pair Qk) {
         if (this.Qk == null) {
             this.Qk = new ArrayList<>();
         }
         this.Qk.add(Qk);
     }
+    public void addQd(Pair Qk) {
+        if (this.Qd == null) {
+            this.Qk = new ArrayList<>();
+        }
+        this.Qd.add(Qk);
+    }
 
     // ReservationStationEntry.java
     public boolean isReady(RegisterFile registerFile) {
-        return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty());
+        return (Qj == null || Qj.isEmpty()) && (Qk == null || Qk.isEmpty())
+                && (Qd == null || Qd.isEmpty())
+                ;
     }
 
     public void execute(RegisterFile registerFile) {
@@ -199,7 +219,6 @@ public class ReservationStationEntry {
         String opcode = instruction.getOpcode();
         switch (opcode) {
             case "DADDI":
-            case "ADDI":
             case "ADD.D":
             case "ADD.S":
                 result = Vj + Vk;
@@ -274,6 +293,26 @@ public class ReservationStationEntry {
         return instruction;
     }
 
+    public static class Pair{
+        String reservationStationName;
+        int instructionNumber;
+
+        public Pair(String reservationStationName, int instructionNumber){
+            this.reservationStationName = reservationStationName;
+            this.instructionNumber = instructionNumber;
+        }
+
+        public String getReservationStationName() {
+            return reservationStationName;
+        }
+        public int getInstructionNumber() {
+            return instructionNumber;
+        }
+        @Override
+        public String toString() {
+            return reservationStationName + ", " + instructionNumber;
+        }
+    }
 
     // Getter for reservationStationName
     public String getReservationStationName() {
@@ -299,4 +338,32 @@ public class ReservationStationEntry {
     public void setOperation(String opcode) {
         this.operation = opcode;
     }
+
+
+    // ReservationStationEntry.java
+public String getQjString() {
+    if (Qj == null || Qj.isEmpty()) {
+        return "";
+    }
+    return Qj.stream()
+             .map(Pair::toString)
+             .collect(Collectors.joining(", "));
+}
+
+public String getQkString() {
+    if (Qk == null || Qk.isEmpty()) {
+        return "";
+    }
+    return Qk.stream()
+             .map(Pair::toString)
+             .collect(Collectors.joining(", "));
+}
+public String getQdString() {
+    if (Qd == null || Qd.isEmpty()) {
+        return "";
+    }
+    return Qd.stream()
+             .map(Pair::toString)
+             .collect(Collectors.joining(", "));
+}
 }

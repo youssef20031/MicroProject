@@ -1,0 +1,9 @@
+3, Add/Sub
+2, Mul/Div
+2, Load
+2, Store
+3, Branch
+3, Add/SubI
+2, Mul/DivI
+2, LoadI
+2, StoreI

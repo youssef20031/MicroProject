@@ -1,5 +1,3 @@
-// Java
-// filepath: /d:/MicroProject/src/main/java/com/microproject/microproject/simulator/TomasuloSimulator.java
 package com.microproject.microproject.simulator;
 
 import com.microproject.microproject.MainController;
@@ -9,26 +7,38 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import com.microproject.microproject.util.InstructionReader;
+import com.microproject.microproject.util.InstructionLatencyReader;
+import com.microproject.microproject.util.ReservationStationReader;
+import com.microproject.microproject.util.CacheReader;
+import com.microproject.microproject.util.RegisterReader;
+import javafx.util.Pair;
+
 import java.util.*;
 
 public class TomasuloSimulator extends Application {
 
-    private int cycle = 0;
-    private int pc = 0; // Program counter
-    private List<Instruction> instructions;
-    private List<String[]> instructionData;
-    private List<ReservationStation> reservationStations;
-    private RegisterFile registerFile;
-    private CommonDataBus cdb;
-    private Cache cache;
-    private Map<String, Integer> latencies;
-    private Map<String, String> registerStatus;
+    public int cycle = 1;
+    public int pc = 0; // Program counter
+    public static int numberOfIssuedInstructions = 0;
+
+    public List<Instruction> issuedInstructionsUI;
+    public List<String[]> instructions;
+    public static List<ReservationStation> reservationStations;
+    public static RegisterFile registerFile;
+    public CommonDataBus cdb;
+    public Cache cache;
+    public Map<String, Integer> latencies;
+    public Map<String, String> registerStatus;
+    public static boolean isBranchInProgress = false;
+
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(TomasuloSimulator.class.getResource("/com/microproject/microproject/main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Tomasulo Algorithm Simulator");
+        stage.setMaximized(true);
         stage.setScene(scene);
 
         // Initialize simulation components
@@ -44,60 +54,95 @@ public class TomasuloSimulator extends Application {
     private void initializeSimulation() {
         cycle = 1;
         pc = 0;
+        numberOfIssuedInstructions = 0; // Initialize numberOfInstructions
+        issuedInstructionsUI = new ArrayList<>();
         instructions = new ArrayList<>();
-        instructionData = new ArrayList<>();
         reservationStations = new ArrayList<>();
         registerFile = new RegisterFile();
         cdb = new CommonDataBus();
-        cache = new Cache(8, 256, 2, 10);
+        cache = null;
         registerStatus = new HashMap<>();
-
-        // Latency for each operation
-        latencies = new HashMap<>();
-        latencies.put("L.D", 2);
-        latencies.put("MUL.D", 4);
-        latencies.put("DIV.D", 4);
-        latencies.put("ADD.D", 5);
-        latencies.put("SUB.D", 5);
-        latencies.put("S.D", 2);
-        latencies.put("LD", 2);
-        latencies.put("BNE", 2);
-        latencies.put("BEQ", 2);
-        latencies.put("DADDI", 0);
-        latencies.put("DSUBI", 0);
-
-        // Initialize Reservation Stations
-        ReservationStation addSubRS = new ReservationStation(3, "Add/Sub");
-        ReservationStation mulDivRS = new ReservationStation(2, "Mul/Div");
-        ReservationStation loadRS = new ReservationStation(2, "Load");
-        ReservationStation storeRS = new ReservationStation(2, "Store");
-        ReservationStation branchRS = new ReservationStation(3, "Branch");
-        ReservationStation integerAddSubRS = new ReservationStation(3, "Add/SubI");
-        ReservationStation integerMulDivRS = new ReservationStation(2, "Mul/DivI");
-        ReservationStation integerLoadRS = new ReservationStation(2, "LoadI");
-        ReservationStation integerStoreRS = new ReservationStation(2, "StoreI");
-
-        reservationStations.addAll(Arrays.asList(
-                branchRS, integerAddSubRS, addSubRS, mulDivRS, loadRS, storeRS,
-                integerMulDivRS, integerLoadRS, integerStoreRS
-        ));
-
-        // Initialize instructions (as String arrays)
-        instructionData.add(new String[]{"DADDI", "R1", "R1", "24"});
-        instructionData.add(new String[]{"DADDI", "R2", "R2", "0"});
-        instructionData.add(new String[]{"L.D", "F0", "0", "R1"});
-        instructionData.add(new String[]{"MUL.D", "F4", "F0", "F2"});
-        instructionData.add(new String[]{"S.D", "F4", "0", "R1"});
-        instructionData.add(new String[]{"DSUBI", "R1", "R1", "8"});
-        instructionData.add(new String[]{"BNE", "R1", "R2", "2"});
-
-        // Initialize Registers if needed
+        // Initialize Registers
         Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        integerRegisterFile[1] = new Register("R1", 0, new ArrayList<>());
-        integerRegisterFile[2] = new Register("R2", 0, new ArrayList<>());
-
         Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
-        floatRegisterFile[2] = new Register("F2", 2.0, new ArrayList<>());
+        String instructionsFilePath = "src/main/java/com/microproject/microproject/text/instruction.txt";
+        String latenciesFilePath = "src/main/java/com/microproject/microproject/text/latency.txt";
+        //read register from file
+        String registerFilePath = "src/main/java/com/microproject/microproject/text/register.txt";
+        // Initialize Reservation Stations from file
+        String reservationStationsFilePath = "src/main/java/com/microproject/microproject/text/reservationstation.txt";
+        // Initialize Cache from file
+        String cacheFilePath = "src/main/java/com/microproject/microproject/text/cache.txt";
+
+
+        List<Integer> cacheEntries = new ArrayList<>();
+        try {
+            cacheEntries = CacheReader.readCacheConfig(cacheFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cache = new Cache(cacheEntries.get(0), cacheEntries.get(1), cacheEntries.get(2), cacheEntries.get(3));
+
+
+        List<String[]> instructionDataCopy = new ArrayList<>();
+        List<Pair<String, Integer>> latenciesCopy = new ArrayList<>();
+        try {
+            instructionDataCopy = InstructionReader.readInstructions(instructionsFilePath);
+            latenciesCopy = InstructionLatencyReader.readLatencies(latenciesFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //loop instructionDataCopy to populate instructionData
+        for (int i = 0; i < instructionDataCopy.size(); i++) {
+            String[] instruction = instructionDataCopy.get(i);
+            String opcode = instruction[0];
+            String destination = instruction.length > 1 ? instruction[1] : "";
+            String source1 = instruction.length > 2 ? instruction[2] : "";
+            String source2 = instruction.length > 3 ? instruction[3] : "";
+            String[] instructionData = new String[]{opcode, destination, source1, source2};
+            this.instructions.add(instructionData);
+        }
+
+        //loop latenciesCopy to populate latencies
+        latencies = new HashMap<>();
+        for (int i = 0; i < latenciesCopy.size(); i++) {
+            Pair<String, Integer> item = latenciesCopy.get(i);
+            latencies.put(item.getKey(), item.getValue());
+        }
+
+        List<Pair<Integer, String>> reservationStationsCopy = new ArrayList<>();
+        try {
+            reservationStationsCopy = ReservationStationReader.readReservationStations(reservationStationsFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < reservationStationsCopy.size(); i++) {
+            Pair<Integer, String> item = reservationStationsCopy.get(i);
+            ReservationStation rs = new ReservationStation(item.getKey(), item.getValue());
+            reservationStations.add(rs);
+        }
+
+
+        List<Pair<String, Integer>> registerFileCopy = new ArrayList<>();
+        try {
+            registerFileCopy = RegisterReader.readRegisters(registerFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //check whether the register is integer or float
+        for (int i = 0; i < registerFileCopy.size(); i++) {
+            Pair<String, Integer> item = registerFileCopy.get(i);
+            if (item.getKey().charAt(0) == 'F') {
+                floatRegisterFile[Integer.parseInt(item.getKey().substring(1))] = new Register(item.getKey(), item.getValue(), new ArrayList<>());
+            } else {
+                integerRegisterFile[Integer.parseInt(item.getKey().substring(1))] = new Register(item.getKey(), item.getValue(), new ArrayList<>());
+            }
+        }
+
+
     }
 
     public void nextCycle() {
@@ -122,7 +167,7 @@ public class TomasuloSimulator extends Application {
         }
 
         boolean branchTaken = false;
-        // Check for branch resolution
+        // Check for branch
         for (ReservationStation rs : reservationStations) {
             if (rs.getName().equals("Branch")) {
                 for (ReservationStationEntry entry : rs.getEntries()) {
@@ -131,6 +176,7 @@ public class TomasuloSimulator extends Application {
                             pc = entry.getBranchTarget();
                             branchTaken = true;
                         }
+                        isBranchInProgress = false;
                         entry.setResultWritten(true);
                         break;
                     }
@@ -140,13 +186,14 @@ public class TomasuloSimulator extends Application {
             }
         }
 
-        System.out.println("PC: " + pc);
-
         // Issue stage
-        if (!branchTaken && pc < instructionData.size()) {
-            String[] data = instructionData.get(pc);
-            Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3]);
-            instructions.add(inst);
+        if (!isBranchInProgress && !branchTaken && pc < instructions.size()) {
+            String[] data = instructions.get(pc);
+            numberOfIssuedInstructions++; // Increment numberOfInstructions
+            System.out.println("Number of Instruction " + numberOfIssuedInstructions + ".");
+            Instruction inst = new Instruction(data[0], 0, data[1], data[2], data[3], numberOfIssuedInstructions);
+            issuedInstructionsUI.add(inst);
+            System.out.println("Instruction " + inst.getInstructionNumber() + ".");
             boolean issued = issueInstruction(inst);
             if (issued) {
                 pc++;
@@ -159,8 +206,8 @@ public class TomasuloSimulator extends Application {
         System.out.println("Cache Status:");
         System.out.println(cache);
 
-        // Check for completion
-        boolean done = (pc >= instructionData.size());
+        boolean done = (pc >= instructions.size());
+        // Check if all reservation stations are empty, if not, done will be false
         for (ReservationStation rs : reservationStations) {
             if (!rs.isEmpty()) {
                 done = false;
@@ -172,7 +219,6 @@ public class TomasuloSimulator extends Application {
             System.out.println("Simulation completed in " + cycle + " cycles.");
         } else {
             cycle++;
-            // If you have a UI, you might need to update it here
         }
         System.out.println("-----------------------------");
     }
@@ -189,11 +235,15 @@ public class TomasuloSimulator extends Application {
                 rs = getReservationStationByName("Add/SubI");
                 break;
             case "ADD.D":
+            case "ADD.S":
             case "SUB.D":
+            case "SUB.S":
                 rs = getReservationStationByName("Add/Sub");
                 break;
             case "MUL.D":
+            case "MUL.S":
             case "DIV.D":
+            case "DIV.S":
                 rs = getReservationStationByName("Mul/Div");
                 break;
             case "LD":
@@ -225,11 +275,10 @@ public class TomasuloSimulator extends Application {
             rs.issue(inst, registerFile, registerStatus, latencies.get(opcode));
             System.out.println("Issued instruction: " + inst.getOpcode() + " to " + rs.getName());
             return true;
-        } else {
-            return false;
         }
-    }
 
+        return false;
+    }
     private ReservationStation getReservationStationByName(String name) {
         for (ReservationStation rs : reservationStations) {
             if (rs.getName().equals(name)) {
@@ -239,43 +288,24 @@ public class TomasuloSimulator extends Application {
         return null;
     }
 
-    // Additional methods as needed...
-
+    // Getters for JavaFX GUI
     public int getCycle() {
         return cycle;
     }
-
-    public List<Instruction> getInstructions() {
-        return instructions;
-    }
-
-    public List<ReservationStation> getReservationStations() {
-        return reservationStations;
-    }
-
-    public RegisterFile getRegisterFile() {
-        return registerFile;
-    }
-
     public List<InstructionStatus> getInstructionStatuses() {
         List<InstructionStatus> statuses = new ArrayList<>();
-        for (Instruction inst : instructions) {
+        for (Instruction inst : issuedInstructionsUI) {
             InstructionStatus status = new InstructionStatus(
-                inst.getOpcode(),
-                inst.getSource1(),
-                inst.getSource2(),
-                inst.getDestination()
+                    inst.getOpcode(),
+                    inst.getSource1(),
+                    inst.getSource2(),
+                    inst.getDestination()
             );
             statuses.add(status);
-        }
-        //print instructions
-        for (Instruction inst : instructions) {
-            System.out.println("Instruction Status: " + inst);
         }
         System.out.println("Instruction Statuses: " + statuses);
         return statuses;
     }
-
     public List<ReservationStationEntry> getReservationStationEntries() {
         List<ReservationStationEntry> entries = new ArrayList<>();
         for (ReservationStation rs : reservationStations) {
@@ -283,10 +313,9 @@ public class TomasuloSimulator extends Application {
         }
         return entries;
     }
-
     public List<RegisterStatus> getRegisterStatuses() {
         List<RegisterStatus> registerStatuses = new ArrayList<>();
-        // Populate registerStatuses from registerFile
+        // Populate register statuses from registerFile
         for (Register reg : registerFile.getFloatRegisterFile()) {
             registerStatuses.add(new RegisterStatus(reg.getName(), String.valueOf(reg.getValue())));
         }
@@ -295,7 +324,6 @@ public class TomasuloSimulator extends Application {
         }
         return registerStatuses;
     }
-
     public List<CacheEntry> getCacheEntries() {
         return cache.getEntries();
     }

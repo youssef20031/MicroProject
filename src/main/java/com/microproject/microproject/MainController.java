@@ -6,10 +6,12 @@ import com.microproject.microproject.model.RegisterStatus;
 import com.microproject.microproject.model.ReservationStationEntry;
 import com.microproject.microproject.simulator.TomasuloSimulator;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.ObservableList;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 
@@ -32,7 +34,7 @@ public class MainController {
 
     @FXML
     private TableColumn<InstructionStatus, String> source2Column;
-    
+
     @FXML
     private TableView<ReservationStationEntry> reservationStationsTable;
 
@@ -82,6 +84,9 @@ public class MainController {
     @FXML
     private TableColumn<CacheEntry, Double> cacheDataColumn;
 
+    @FXML
+    private Label cycleLabel;
+
     private ObservableList<CacheEntry> cacheEntries;
 
 
@@ -109,8 +114,11 @@ public class MainController {
         rsNameColumn.setCellValueFactory(new PropertyValueFactory<>("reservationStationName"));
         rsBusyColumn.setCellValueFactory(new PropertyValueFactory<>("busy"));
         rsOpColumn.setCellValueFactory(new PropertyValueFactory<>("operation"));
-        rsVjColumn.setCellValueFactory(new PropertyValueFactory<>("vj"));
-        rsVkColumn.setCellValueFactory(new PropertyValueFactory<>("vk"));
+        // MainController.java
+        rsQjColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getQjString()));
+        rsQkColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getQkString()));
         rsQjColumn.setCellValueFactory(new PropertyValueFactory<>("qj"));
         rsQkColumn.setCellValueFactory(new PropertyValueFactory<>("qk"));
         rsDestColumn.setCellValueFactory(new PropertyValueFactory<>("destination"));
@@ -173,11 +181,16 @@ public class MainController {
         updateRegisterFileUI();
 
         updateCacheUI();
+
+        cycleLabel.setText("Cycle: " + simulator.getCycle());
+
     }
+
     private void updateRegisterFileUI() {
         registerStatusList.clear();
         registerStatusList.addAll(simulator.getRegisterStatuses());
     }
+
     private void updateCacheUI() {
         cacheEntries.clear();
         cacheEntries.addAll(simulator.getCacheEntries());
