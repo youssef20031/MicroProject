@@ -11,7 +11,6 @@ import com.microproject.microproject.util.InstructionReader;
 import com.microproject.microproject.util.InstructionLatencyReader;
 import com.microproject.microproject.util.ReservationStationReader;
 import com.microproject.microproject.util.CacheReader;
-import com.microproject.microproject.util.RegisterReader;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -68,7 +67,6 @@ public class TomasuloSimulator extends Application {
         String instructionsFilePath = "src/main/java/com/microproject/microproject/text/instruction.txt";
         String latenciesFilePath = "src/main/java/com/microproject/microproject/text/latency.txt";
         //read register from file
-        String registerFilePath = "src/main/java/com/microproject/microproject/text/register.txt";
         // Initialize Reservation Stations from file
         String reservationStationsFilePath = "src/main/java/com/microproject/microproject/text/reservationstation.txt";
         // Initialize Cache from file
@@ -123,26 +121,6 @@ public class TomasuloSimulator extends Application {
             ReservationStation rs = new ReservationStation(item.getKey(), item.getValue());
             reservationStations.add(rs);
         }
-
-
-        List<Pair<String, Integer>> registerFileCopy = new ArrayList<>();
-        try {
-            registerFileCopy = RegisterReader.readRegisters(registerFilePath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //check whether the register is integer or float
-        for (int i = 0; i < registerFileCopy.size(); i++) {
-            Pair<String, Integer> item = registerFileCopy.get(i);
-            if (item.getKey().charAt(0) == 'F') {
-                floatRegisterFile[Integer.parseInt(item.getKey().substring(1))] = new Register(item.getKey(), item.getValue(), new ArrayList<>());
-            } else {
-                integerRegisterFile[Integer.parseInt(item.getKey().substring(1))] = new Register(item.getKey(), item.getValue(), new ArrayList<>());
-            }
-        }
-
-
     }
 
     public void nextCycle() {
@@ -288,7 +266,7 @@ public class TomasuloSimulator extends Application {
         return null;
     }
 
-    // Getters for JavaFX GUI
+    // All down are Getters for JavaFX GUI
     public int getCycle() {
         return cycle;
     }

@@ -1,4 +1,4 @@
-package com.microproject.microproject.model;
+package com.microproject.microproject.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

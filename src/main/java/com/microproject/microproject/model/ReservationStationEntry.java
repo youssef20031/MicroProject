@@ -3,9 +3,7 @@ package com.microproject.microproject.model;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import com.microproject.microproject.model.Cache;
-
-import static com.microproject.microproject.model.ReadAddressFromText.readAddresses;
+import static com.microproject.microproject.util.ReadAddressFromText.readAddresses;
 
 public class ReservationStationEntry {
     private String reservationStationName; // New property
@@ -14,6 +12,10 @@ public class ReservationStationEntry {
     private Instruction instruction;
     private int latency;
     private ArrayList<Pair> Qd;
+    // Why Qd?
+    // LD F0, 0
+    // MUL.D F0, F1, F2
+    // --> ReservationStationEntry for MUL.D must wait for LD to finish to avoid WAW hazard, therefore we added Qd
     private ArrayList<Pair> Qk;
     private double Vj;
     private double Vk;
@@ -213,8 +215,6 @@ public class ReservationStationEntry {
         }
     }
 
-// ReservationStationEntry.java
-
     private void computeResult(RegisterFile registerFile) {
         String opcode = instruction.getOpcode();
         switch (opcode) {
@@ -241,7 +241,6 @@ public class ReservationStationEntry {
             case "L.D":
             case "L.S":
                 // Load data from cache using the effective address in Vk
-//                int loadAddress = (int) Vk;
                 int loadAddress = this.getInstruction().getEffectiveAddress();
                 Cache.accessData(loadAddress); // Simulate cache latency
                 result = Cache.readData(loadAddress);
@@ -293,43 +292,18 @@ public class ReservationStationEntry {
         return instruction;
     }
 
-    public static class Pair{
-        String reservationStationName;
-        int instructionNumber;
-
-        public Pair(String reservationStationName, int instructionNumber){
-            this.reservationStationName = reservationStationName;
-            this.instructionNumber = instructionNumber;
-        }
-
-        public String getReservationStationName() {
-            return reservationStationName;
-        }
-        public int getInstructionNumber() {
-            return instructionNumber;
-        }
-        @Override
-        public String toString() {
-            return reservationStationName + ", " + instructionNumber;
-        }
-    }
-
-    // Getter for reservationStationName
     public String getReservationStationName() {
         return reservationStationName;
     }
 
-    // Getter for busy
     public boolean isBusy() {
         return busy;
     }
 
-    // Setter for busy
     public void setBusy(boolean busy) {
         this.busy = busy;
     }
 
-    // Getter for operation
     public String getOperation() {
         return operation;
     }
@@ -339,31 +313,29 @@ public class ReservationStationEntry {
         this.operation = opcode;
     }
 
+    public String getQjString() {
+        if (Qj == null || Qj.isEmpty()) {
+            return "";
+        }
+        return Qj.stream()
+                 .map(Pair::toString)
+                 .collect(Collectors.joining(", "));
+    }
 
-    // ReservationStationEntry.java
-public String getQjString() {
-    if (Qj == null || Qj.isEmpty()) {
-        return "";
+    public String getQkString() {
+        if (Qk == null || Qk.isEmpty()) {
+            return "";
+        }
+        return Qk.stream()
+                 .map(Pair::toString)
+                 .collect(Collectors.joining(", "));
     }
-    return Qj.stream()
-             .map(Pair::toString)
-             .collect(Collectors.joining(", "));
-}
-
-public String getQkString() {
-    if (Qk == null || Qk.isEmpty()) {
-        return "";
+    public String getQdString() {
+        if (Qd == null || Qd.isEmpty()) {
+            return "";
+        }
+        return Qd.stream()
+                 .map(Pair::toString)
+                 .collect(Collectors.joining(", "));
     }
-    return Qk.stream()
-             .map(Pair::toString)
-             .collect(Collectors.joining(", "));
-}
-public String getQdString() {
-    if (Qd == null || Qd.isEmpty()) {
-        return "";
-    }
-    return Qd.stream()
-             .map(Pair::toString)
-             .collect(Collectors.joining(", "));
-}
 }

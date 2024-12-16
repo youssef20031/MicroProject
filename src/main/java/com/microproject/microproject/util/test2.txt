@@ -1,5 +1,0 @@
-SUBI  7
-L.D 5
-MUL.D 2
-S.D 3
-BNEZ  69
