@@ -184,7 +184,7 @@ public class ReservationStationEntry {
                 if (Cache.isSlotEmpty(cacheSlotAddress)) {
                     // Cache miss: Slot is empty
                     //Cache.gotAccessed(); // Mark cache as accessed
-                    String filePath = "C:\\Users\\Yusuf\\Documents\\Sem 7\\Micro Project\\MicroProject\\src\\main\\java\\com\\microproject\\microproject\\text\\address.txt";
+                    String filePath = "src/main/java/com/microproject/microproject/text/address.txt";
                     ArrayList<int[]> addresses = readAddresses(filePath);
 
                     //search for the address in the text file

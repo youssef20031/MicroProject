@@ -83,7 +83,7 @@ public class Cache {
 
     private static double loadDataFromMemory(int address) {
         try {
-            List<String> lines = Files.readAllLines(Paths.get("C:\\Users\\Yusuf\\Documents\\Sem 7\\Micro Project\\MicroProject\\src\\main\\java\\com\\microproject\\microproject\\text\\address.txt"));
+            List<String> lines = Files.readAllLines(Paths.get("src/main/java/com/microproject/microproject/text/address.txt"));
             for (String line : lines) {
                 String[] parts = line.split(",");
                 int fileAddress = Integer.parseInt(parts[0].trim());
