@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+// Block Size, Cache Size, cacheHitLatency, cacheMissPenalty
 public class CacheReader {
 
     /**

@@ -7,7 +7,7 @@ public class CDBEntry {
     private String src2;
     private int instructionNumber;
 
-    // Constructor for instructions that have a destination register
+    // Overloaded constructor for instructions like S.D that need to broadcast src2
     public CDBEntry(Instruction instruction, String destination, double result, String src2, int instructionNumber) {
         this.instruction = instruction;
         this.destination = destination;
@@ -16,7 +16,7 @@ public class CDBEntry {
         this.instructionNumber = instructionNumber;
     }
 
-    // Overloaded constructor for instructions like S.D that need to broadcast src2
+    // Constructor for instructions that have a destination register
     public CDBEntry(Instruction instruction, String destination, double result, int instructionNumber) {
         this.instruction = instruction;
         this.destination = destination;
