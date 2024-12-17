@@ -19,7 +19,6 @@ public class CommonDataBus {
             if (entry.getDestination() != null) {
                 // Clear register status
                 registerStatus.remove(entry.getDestination());
-
                 // Update waiting reservation stations
                 for (ReservationStation rs : reservationStations) {
                     rs.updateEntries(entry);

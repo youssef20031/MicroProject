@@ -184,7 +184,7 @@ public class ReservationStationEntry {
                 if (Cache.isSlotEmpty(cacheSlotAddress)) {
                     // Cache miss: Slot is empty
                     //Cache.gotAccessed(); // Mark cache as accessed
-                    String filePath = "src/main/java/com/microproject/microproject/text/address.txt";
+                    String filePath = "C:\\Users\\Yusuf\\Documents\\Sem 7\\Micro Project\\MicroProject\\src\\main\\java\\com\\microproject\\microproject\\text\\address.txt";
                     ArrayList<int[]> addresses = readAddresses(filePath);
 
                     //search for the address in the text file
@@ -241,6 +241,7 @@ public class ReservationStationEntry {
             case "L.D":
             case "L.S":
                 // Load data from cache using the effective address in Vk
+
                 int loadAddress = this.getInstruction().getEffectiveAddress();
                 Cache.accessData(loadAddress); // Simulate cache latency
                 result = Cache.readData(loadAddress);

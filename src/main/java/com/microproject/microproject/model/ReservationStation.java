@@ -67,8 +67,9 @@ public class ReservationStation {
                     entry.getInstruction().setEffectiveAddress((int) effectiveAddress);
                 }
             }
-            // S.D F4, 0, R1
-        } else if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
+        }
+        // S.D F4, 0, R1
+        else if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
             // For Store: Compute effective address Vk = base register value + offset
             // Check Qi from registerFile(check if R1 is busy or not)
             if (src2 != null && !src2.isEmpty()) {
@@ -183,7 +184,7 @@ public class ReservationStation {
                 String opcode = entry.getInstruction().getOpcode();
                 String destination = entry.getDestination();
                 double result = entry.getResult();
-
+                // S.D F4, 0, R1, store value of F4 in address 0 + R1 in Cache
                 if (opcode.equals("S.D") || opcode.equals("S.S") || opcode.equals("SD") || opcode.equals("SW")) {
                     // For store instructions, broadcast src2 to clear dependencies
                     String src2 = entry.getInstruction().getSource2();
@@ -217,7 +218,7 @@ public class ReservationStation {
         removeCompletedEntries();
 
     }
-
+    // after broadcasting to CDB, update the reservation station entries(Qd, Qj, Qk)
     public void updateEntries(CDBEntry entry) {
         for (ReservationStationEntry rsEntry : entries) {
             // loop on getQd()
@@ -263,6 +264,7 @@ public class ReservationStation {
                 if(entry.getInstructionNumber() == rsEntry.getQk().get(i).instructionNumber) {
                     if (entry.getDestination().equals(rsEntry.getInstruction().getSource2())) {
                         rsEntry.setVk(entry.getResult());
+                        rsEntry.getInstruction().setEffectiveAddress((int) entry.getResult());
                         rsEntry.setQk(new ArrayList<>());
                     }
                     if ("S.D".equals(rsEntry.getInstruction().getOpcode()) ||

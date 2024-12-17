@@ -26,7 +26,7 @@ public class ReadAddressFromText {
     }
 
     public static void main(String[] args) {
-        String filePath = "src/main/java/com/microproject/microproject/text/address.txt";
+        String filePath = "C:\\Users\\Yusuf\\Documents\\Sem 7\\Micro Project\\MicroProject\\src\\main\\java\\com\\microproject\\microproject\\text\\address.txt";
         ArrayList<int[]> addresses = readAddresses(filePath);
         for (int[] address : addresses) {
             System.out.println("Address: " + address[0] + ", Value: " + address[1]);

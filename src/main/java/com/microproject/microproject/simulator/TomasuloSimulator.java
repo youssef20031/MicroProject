@@ -61,17 +61,11 @@ public class TomasuloSimulator extends Application {
         cdb = new CommonDataBus();
         cache = null;
         registerStatus = new HashMap<>();
-        // Initialize Registers
-        Register[] integerRegisterFile = registerFile.getIntegerRegisterFile();
-        Register[] floatRegisterFile = registerFile.getFloatRegisterFile();
+
         String instructionsFilePath = "src/main/java/com/microproject/microproject/text/instruction.txt";
         String latenciesFilePath = "src/main/java/com/microproject/microproject/text/latency.txt";
-        //read register from file
-        // Initialize Reservation Stations from file
         String reservationStationsFilePath = "src/main/java/com/microproject/microproject/text/reservationstation.txt";
-        // Initialize Cache from file
         String cacheFilePath = "src/main/java/com/microproject/microproject/text/cache.txt";
-
 
         List<Integer> cacheEntries = new ArrayList<>();
         try {
@@ -80,7 +74,6 @@ public class TomasuloSimulator extends Application {
             e.printStackTrace();
         }
         cache = new Cache(cacheEntries.get(0), cacheEntries.get(1), cacheEntries.get(2), cacheEntries.get(3));
-
 
         List<String[]> instructionDataCopy = new ArrayList<>();
         List<Pair<String, Integer>> latenciesCopy = new ArrayList<>();
@@ -91,7 +84,6 @@ public class TomasuloSimulator extends Application {
             e.printStackTrace();
         }
 
-        //loop instructionDataCopy to populate instructionData
         for (int i = 0; i < instructionDataCopy.size(); i++) {
             String[] instruction = instructionDataCopy.get(i);
             String opcode = instruction[0];
