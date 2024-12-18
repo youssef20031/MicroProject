@@ -39,6 +39,7 @@ public class RegisterFile {
 
     // Set register value by name
     public void setRegisterValue(String name, double value) {
+        // name = R11, value = 14
         if (name.startsWith("F")) {
             int index = Integer.parseInt(name.substring(1));
             floatRegisterFile[index].setValue(value);

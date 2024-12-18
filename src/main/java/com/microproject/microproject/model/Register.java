@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class Register {
 
     private ArrayList<ArrayList<String>> Qi;
+    // {[ReservationStationEntryName: L1, InstructionNumber: 2],[ReservationStationEntryName: M1, InstructionNumber: 4]}
     private String name;
     private double value;
     private int instructionNumber;
@@ -18,8 +19,8 @@ public class Register {
         this.name = name;
         this.value = value;
         this.Qi = Qi;
-
     }
+
     // Integer Regiser File
     public Register(String name, double value) {
         this.name = name;
@@ -48,6 +49,7 @@ public class Register {
         }
     }
     // Register.java
+    // Qi = [RSName: MUL, InstructionNumber: 5]
     public void removeQi(ArrayList<String> Qi) {
         if (this.Qi != null && Qi != null) {
             for(int i = 0;i < this.Qi.size();i++) {
@@ -56,7 +58,6 @@ public class Register {
                     break;
                 }
             }
-
         }
     }
     public void addQi(ArrayList<String> Qi) {

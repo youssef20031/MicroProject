@@ -74,26 +74,6 @@ public class Instruction {
         this.source2 = source2;
     }
 
-    // Existing constructors and methods
-
-    public boolean isIntegerInstruction() {
-        switch (opcode) {
-            case "ADD":
-            case "DADDI":
-                case "DSUBI":
-            case "LW":
-            case "SW":
-            case "LD":
-            case "SD":
-            case "SUB":
-            case "ADDI":
-            case "SUBI":
-                return true;
-            default:
-                return false;
-        }
-    }
-
     // Getters and setters for src1Value, src2Value, result
     public void setSrc1Value(double value) {
         this.src1Value = value;
@@ -132,30 +112,5 @@ public class Instruction {
     public void setEffectiveAddress(int effectiveAddress) {
         this.effectiveAddress = effectiveAddress;
     }
-    public double getLoadedData() {
-        return LoadedData;
-    }
 
-    public void setLoadedData(double loadedData) {
-        LoadedData = loadedData;
-    }
-    public String[] getSourceRegisters() {
-        String opcode = this.opcode.toUpperCase();
-        if (opcode.equals("SW") || opcode.equals("SD")) {
-            return new String[] { this.destination, this.source1 };
-        } else if (opcode.equals("LW") || opcode.equals("LD")) {
-            return new String[] { this.source1 };
-        } else {
-            return new String[] { this.source1, this.source2 };
-        }
-    }
-
-    public String getDestinationRegister() {
-        String opcode = this.opcode.toUpperCase();
-        if (opcode.equals("SW") || opcode.equals("SD")) {
-            // Store instructions do not write to a register
-            return null;
-        }
-        return this.destination;
-    }
 }

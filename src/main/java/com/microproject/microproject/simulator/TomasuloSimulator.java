@@ -29,6 +29,8 @@ public class TomasuloSimulator extends Application {
     public Cache cache;
     public Map<String, Integer> latencies;
     public Map<String, String> registerStatus;
+    // isBranchInProgress is used to prevent issuing new instructions when a branch is in progress, to see if it is taken or not
+    // isBranchInProgress becomes true when a branch instruction is issued in ReservationStation.java line 103 and becomes false when the branch is resolved here in line 149
     public static boolean isBranchInProgress = false;
 
 
@@ -136,15 +138,14 @@ public class TomasuloSimulator extends Application {
             rs.removeCompletedEntries();
         }
 
-        boolean branchTaken = false;
         // Check for branch
         for (ReservationStation rs : reservationStations) {
             if (rs.getName().equals("Branch")) {
                 for (ReservationStationEntry entry : rs.getEntries()) {
                     if (entry.isExecutionComplete() && !entry.isResultWritten()) {
+                        // see ReservationStationEntry.java line 258-265
                         if (entry.isBranchTaken()) {
                             pc = entry.getBranchTarget();
-                            branchTaken = true;
                         }
                         isBranchInProgress = false;
                         entry.setResultWritten(true);
@@ -156,8 +157,9 @@ public class TomasuloSimulator extends Application {
             }
         }
 
+
         // Issue stage
-        if (!isBranchInProgress && !branchTaken && pc < instructions.size()) {
+        if (!isBranchInProgress && pc < instructions.size()) {
             String[] data = instructions.get(pc);
             numberOfIssuedInstructions++; // Increment numberOfInstructions
             System.out.println("Number of Instruction " + numberOfIssuedInstructions + ".");

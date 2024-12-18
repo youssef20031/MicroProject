@@ -147,7 +147,7 @@ public class Main {
 
             System.out.println("pc: " + pc);
             // Issue stage
-            if (!branchTaken && pc < instructions.size()) {
+            if (pc < instructions.size()) {
                 // Instruction inst = instructions.get(pc);
                 String[] data = instructions.get(pc);
                 numberOfInstructions++;
@@ -159,7 +159,6 @@ public class Main {
                 } else {
                     System.out.println("Instruction " + inst.getOpcode() + " is waiting to be issued.");
                 }
-
             }
 
             registerFile.printStatus();

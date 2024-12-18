@@ -241,7 +241,6 @@ public class ReservationStationEntry {
             case "L.D":
             case "L.S":
                 // Load data from cache using the effective address in Vk
-
                 int loadAddress = this.getInstruction().getEffectiveAddress();
                 Cache.accessData(loadAddress); // Simulate cache latency
                 result = Cache.readData(loadAddress);
